@@ -1,0 +1,118 @@
+  <div class="mobile-sidebar" id="mobileSidebar">
+    <a href="/projects" class="mt-[20px]">INDEX</a>
+    <a href="/about">ABOUT</a>
+    <a href="/press">PRESS</a>
+    <a href="/contact">CONTACT</a>
+  </div>
+  <div class="mobile-menu-btn" id="mobileMenuBtn">
+    <div class="bar"></div>
+    <div class="bar"></div>
+  </div>
+  <div class="mobile-sidebar-backdrop" id="sidebarBackdrop"></div>
+  
+  <script is:inline>
+    window.addEventListener('DOMContentLoaded', function() {
+      const btn = document.getElementById('mobileMenuBtn');
+      const sidebar = document.getElementById('mobileSidebar');
+      const backdrop = document.getElementById('sidebarBackdrop');
+
+      function toggleSidebar() {
+        const isOpen = sidebar.classList.contains('open');
+        if (isOpen) {
+          sidebar.classList.remove('open');
+          backdrop.classList.remove('open');
+          document.body.style.overflow = '';
+        } else {
+          sidebar.classList.add('open');
+          backdrop.classList.add('open');
+          document.body.style.overflow = 'hidden';
+        }
+      }
+
+      if (btn) btn.onclick = toggleSidebar;
+      if (backdrop) backdrop.onclick = toggleSidebar;
+    });
+  </script>
+
+
+<style>
+    .mobile-menu-btn {
+      width: 26px;
+      z-index: 1101;
+      display: flex;
+      cursor: pointer;
+      position: relative;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .mobile-menu-btn .bar {
+      width: 100%;
+      height: 2px;
+      margin: 5px 0;
+      transition: 0.3s;
+      border-radius: 2px;
+      background: #3D3D3D;
+    }
+    .mobile-sidebar {
+      position: fixed;
+      top: 0;
+      right: -300px;
+      width: 300px;
+      height: 100vh;
+      background: #fff;
+      box-shadow: -2px 0 12px rgba(0,0,0,0.08);
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 32px 0 0 0;
+      transition: right 0.3s;
+      z-index: 1100;
+    }
+    .mobile-sidebar.open {
+      right: 0;
+    }
+    .mobile-sidebar.open + .mobile-menu-btn .bar:nth-child(1) {
+      transform: rotate(45deg);
+    }
+    .mobile-sidebar.open + .mobile-menu-btn .bar:nth-child(2) {
+      transform: rotate(-45deg) translate(5px, -5px);
+    }
+    .mobile-sidebar a {
+      width: 100%;
+      padding: 18px 32px;
+      color: #222;
+      text-decoration: none;
+      font-size: 20px;
+      font-weight: 400;
+      border: none;
+      border-bottom: 1px solid #222;
+      background: none;
+      box-sizing: border-box;
+      transition: background 0.2s;
+      display: block;
+    }
+    .mobile-sidebar a:last-child {
+      border-bottom: none;
+    }
+    .mobile-sidebar-backdrop {
+      display: none;
+      position: fixed;
+      z-index: 1099;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.18);
+      transition: opacity 0.3s;
+    }
+    .mobile-sidebar-backdrop.open {
+      display: block;
+      opacity: 1;
+    }
+    .mobile-sidebar-backdrop {
+      display: none;
+    }
+    body.mobile .mobile-menu-btn {
+      display: block;
+    }
+    body.mobile .mobile-sidebar-backdrop.open {
+      display: block;
+    }
+  </style>

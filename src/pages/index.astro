@@ -1,0 +1,163 @@
+---
+export const prerender = true;
+
+import Layout from '../layouts/Layout.astro';
+import { getHomeGalleryImages } from '../utils/data';
+
+const galleryImages = await getHomeGalleryImages();
+
+// Fallback to static images if no images in database
+const images = galleryImages.length > 0
+  ? galleryImages.map(img => ({ url: img.image_url, isDark: img.is_dark }))
+  : [
+    { url: '/assets/home/image1.png', isDark: false },
+    { url: '/assets/home/image2.png', isDark: false },
+    { url: '/assets/home/image3.png', isDark: false },
+    { url: '/assets/home/image4.png', isDark: false },
+    { url: '/assets/home/image5.png', isDark: true },
+    { url: '/assets/home/image6.png', isDark: false },
+    { url: '/assets/home/image7.png', isDark: false },
+    { url: '/assets/home/image8.png', isDark: false },
+  ];
+
+const totalImages = images.length;
+---
+
+<Layout title="Salty Architects" isHomePage={true}>
+	<div class="relative h-screen w-full overflow-hidden">
+		<div id="carousel" class="relative h-full w-full">
+			<div class="absolute inset-0">
+				<img
+					id="carousel-image-1"
+					src={images[0]?.url || ''}
+					alt="Salty Architects Project"
+					class="absolute inset-0 w-full h-full object-cover object-top transition-opacity duration-300"
+				/>
+				<img
+					id="carousel-image-2"
+					src=""
+					alt="Salty Architects Project"
+					class="absolute inset-0 w-full h-full object-cover object-top opacity-0 transition-opacity duration-300"
+				/>
+			</div>
+
+			<div class="absolute inset-0 flex items-center justify-center text-center">
+				<h1 id="main-title" class="text-black font-brown transition-colors duration-700" style="font-size: 100px; line-height: 1.22; font-weight: 400; letter-spacing: -0.02em;">Salty Architects</h1>
+			</div>
+
+			<div
+				id="prev-zone"
+				class="absolute top-0 left-0 w-2/5 h-full cursor-left z-10"
+			></div>
+
+			<div
+				id="next-zone"
+				class="absolute top-0 right-0 w-2/5 h-full cursor-right z-10"
+			></div>
+
+			<div id="image-counter" class="absolute bottom-[30px] left-[30px] tracking-wide transition-colors duration-700 text-lg">
+				<span id="current-image">01</span> / <span id="total-images">{String(totalImages).padStart(2, '0')}</span>
+			</div>
+		</div>
+	</div>
+
+	<style>
+		.cursor-left {
+			cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>') 12 12, auto;
+		}
+
+		.cursor-right {
+			cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>') 12 12, auto;
+		}
+	</style>
+
+	<script define:vars={{ images }}>
+		let currentIndex = 0;
+		let activeImage = 1;
+		let autoPlayInterval;
+
+		const image1 = document.getElementById('carousel-image-1');
+		const image2 = document.getElementById('carousel-image-2');
+		const currentImageSpan = document.getElementById('current-image');
+		const prevZone = document.getElementById('prev-zone');
+		const nextZone = document.getElementById('next-zone');
+		const mainTitle = document.getElementById('main-title');
+		const imageCounter = document.getElementById('image-counter');
+
+		function updateTextColor(isDark) {
+			if (isDark) {
+				mainTitle.classList.remove('text-black');
+				mainTitle.classList.add('text-white');
+				imageCounter.classList.add('text-white');
+			} else {
+				mainTitle.classList.remove('text-white');
+				mainTitle.classList.add('text-black');
+				imageCounter.classList.remove('text-white');
+			}
+		}
+
+		function updateImage() {
+			const nextImage = activeImage === 1 ? image2 : image1;
+			const currentImage = activeImage === 1 ? image1 : image2;
+
+			nextImage.src = images[currentIndex].url;
+			currentImageSpan.textContent = String(currentIndex + 1).padStart(2, '0');
+			updateTextColor(images[currentIndex].isDark);
+
+			nextImage.classList.remove('opacity-0');
+			currentImage.classList.add('opacity-0');
+
+			activeImage = activeImage === 1 ? 2 : 1;
+		}
+
+		function nextImage() {
+			currentIndex = (currentIndex + 1) % images.length;
+			updateImage();
+			resetAutoPlay();
+		}
+
+		function prevImage() {
+			currentIndex = (currentIndex - 1 + images.length) % images.length;
+			updateImage();
+			resetAutoPlay();
+		}
+
+		function startAutoPlay() {
+			autoPlayInterval = setInterval(() => {
+				currentIndex = (currentIndex + 1) % images.length;
+				updateImage();
+			}, 7000);
+		}
+
+		function resetAutoPlay() {
+			clearInterval(autoPlayInterval);
+			startAutoPlay();
+		}
+
+		// Initialize
+		updateTextColor(images[0]?.isDark || false);
+		images.forEach(img => {
+			const preload = new Image();
+			preload.src = img.url;
+		});
+		startAutoPlay();
+
+		prevZone.addEventListener('click', (e) => {
+			e.stopPropagation();
+			prevImage();
+		});
+		nextZone.addEventListener('click', (e) => {
+			e.stopPropagation();
+			nextImage();
+		});
+
+		document.addEventListener('keydown', (e) => {
+			if (e.key === 'ArrowLeft') prevImage();
+			else if (e.key === 'ArrowRight') nextImage();
+		});
+
+		const carousel = document.getElementById('carousel');
+		carousel.addEventListener('mouseenter', () => clearInterval(autoPlayInterval));
+		carousel.addEventListener('mouseleave', startAutoPlay);
+	</script>
+</Layout>

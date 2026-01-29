@@ -1,0 +1,208 @@
+---
+export interface Props {
+  images?: string[];
+  inputName?: string;
+}
+
+const { images = [], inputName = 'images' } = Astro.props;
+---
+
+<div class="image-uploader">
+  <div class="mb-4 p-4 border-2 border-dashed rounded-lg" id="project-drop-zone">
+    <input type="file" id="project-file-input" accept="image/*" multiple class="hidden" />
+    <div class="text-center">
+      <p class="text-gray-600 mb-2">Drag & drop images or click to select</p>
+      <button type="button" id="project-select-btn" class="px-4 py-2 bg-gray-100 rounded hover:bg-gray-200">
+        Select Files
+      </button>
+    </div>
+    <div id="project-upload-status" class="hidden mt-4 text-center text-sm text-gray-600"></div>
+  </div>
+
+  <input type="hidden" id="images-textarea" name={inputName} value={images.join('\n')} />
+
+  <div class="mb-2 flex justify-between items-center">
+    <label class="block text-sm font-medium">
+      Images (<span id="image-count">{images.length}</span>)
+    </label>
+    <span class="text-xs text-gray-500">Drag to reorder</span>
+  </div>
+
+  <div id="image-preview-grid" class="grid grid-cols-4 gap-2">
+    {images.map((url, i) => (
+      <div class="relative group image-preview-item" data-url={url}>
+        <img src={url} class="w-full h-20 object-cover rounded cursor-move" />
+        <button
+          type="button"
+          class="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs opacity-0 group-hover:opacity-100 remove-image"
+        >
+          ×
+        </button>
+        <div class="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs text-center">
+          {i + 1}
+        </div>
+      </div>
+    ))}
+  </div>
+</div>
+
+<script>
+  const dropZone = document.getElementById('project-drop-zone');
+  const fileInput = document.getElementById('project-file-input') as HTMLInputElement;
+  const selectBtn = document.getElementById('project-select-btn');
+  const uploadStatus = document.getElementById('project-upload-status');
+  const textarea = document.getElementById('images-textarea') as HTMLTextAreaElement;
+  const previewGrid = document.getElementById('image-preview-grid');
+  const imageCount = document.getElementById('image-count');
+
+  function getImages(): string[] {
+    return textarea.value.split('\n').map(s => s.trim()).filter(Boolean);
+  }
+
+  function setImages(urls: string[]) {
+    textarea.value = urls.join('\n');
+    if (imageCount) imageCount.textContent = String(urls.length);
+    renderPreviews();
+  }
+
+  function renderPreviews() {
+    if (!previewGrid) return;
+    const urls = getImages();
+    previewGrid.innerHTML = urls.map((url, i) => `
+      <div class="relative group image-preview-item" data-url="${url}" draggable="true">
+        <img src="${url}" class="w-full h-20 object-cover rounded cursor-move" />
+        <button type="button" class="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs opacity-0 group-hover:opacity-100 remove-image">×</button>
+        <div class="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs text-center">${i + 1}</div>
+      </div>
+    `).join('');
+    setupDragAndDrop();
+    setupRemoveButtons();
+  }
+
+  function setupRemoveButtons() {
+    previewGrid?.querySelectorAll('.remove-image').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const item = (e.target as HTMLElement).closest('.image-preview-item') as HTMLElement;
+        const url = item?.dataset.url;
+        if (url) {
+          const urls = getImages().filter(u => u !== url);
+          setImages(urls);
+        }
+      });
+    });
+  }
+
+  function setupDragAndDrop() {
+    let draggedEl: HTMLElement | null = null;
+
+    previewGrid?.querySelectorAll('.image-preview-item').forEach(item => {
+      const el = item as HTMLElement;
+
+      el.addEventListener('dragstart', () => {
+        draggedEl = el;
+        el.classList.add('opacity-50');
+      });
+
+      el.addEventListener('dragend', () => {
+        el.classList.remove('opacity-50');
+        draggedEl = null;
+      });
+
+      el.addEventListener('dragover', (e) => e.preventDefault());
+
+      el.addEventListener('drop', (e) => {
+        e.preventDefault();
+        if (draggedEl && draggedEl !== el && previewGrid) {
+          const items = Array.from(previewGrid.querySelectorAll('.image-preview-item'));
+          const draggedIdx = items.indexOf(draggedEl);
+          const targetIdx = items.indexOf(el);
+
+          if (draggedIdx < targetIdx) {
+            el.after(draggedEl);
+          } else {
+            el.before(draggedEl);
+          }
+
+          // Update textarea
+          const newOrder = Array.from(previewGrid.querySelectorAll('.image-preview-item'))
+            .map(item => (item as HTMLElement).dataset.url)
+            .filter(Boolean) as string[];
+          setImages(newOrder);
+        }
+      });
+    });
+  }
+
+  selectBtn?.addEventListener('click', () => fileInput?.click());
+
+  dropZone?.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropZone.classList.add('border-blue-500', 'bg-blue-50');
+  });
+
+  dropZone?.addEventListener('dragleave', () => {
+    dropZone.classList.remove('border-blue-500', 'bg-blue-50');
+  });
+
+  dropZone?.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('border-blue-500', 'bg-blue-50');
+    const files = e.dataTransfer?.files;
+    if (files?.length) handleFiles(Array.from(files));
+  });
+
+  fileInput?.addEventListener('change', () => {
+    if (fileInput.files?.length) handleFiles(Array.from(fileInput.files));
+  });
+
+  async function handleFiles(files: File[]) {
+    const imageFiles = files.filter(f => f.type.startsWith('image/'));
+    if (!imageFiles.length) return;
+
+    if (uploadStatus) {
+      uploadStatus.classList.remove('hidden');
+      uploadStatus.textContent = `Uploading ${imageFiles.length} image(s)...`;
+    }
+
+    const newUrls: string[] = [];
+
+    for (let i = 0; i < imageFiles.length; i++) {
+      const file = imageFiles[i];
+      if (uploadStatus) uploadStatus.textContent = `Uploading ${i + 1}/${imageFiles.length}...`;
+
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('bucket', 'images');
+
+      try {
+        const response = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          newUrls.push(result.url);
+        }
+      } catch (err) {
+        console.error('Upload failed:', err);
+      }
+    }
+
+    if (newUrls.length) {
+      const currentUrls = getImages();
+      setImages([...currentUrls, ...newUrls]);
+    }
+
+    if (uploadStatus) {
+      uploadStatus.textContent = `Uploaded ${newUrls.length} image(s)`;
+      setTimeout(() => uploadStatus.classList.add('hidden'), 2000);
+    }
+  }
+
+  // Initial setup
+  setupDragAndDrop();
+  setupRemoveButtons();
+
+  </script>

@@ -1,0 +1,131 @@
+---
+import MobileSidebar from '../components/MobileSidebar.astro';
+
+export interface Props {
+  title: string;
+  isHomePage?: boolean;
+  description?: string;
+  ogImage?: string;
+  canonical?: string;
+}
+
+const { title, isHomePage = false, description = "Salty Architects - Architecture Studio", ogImage, canonical } = Astro.props;
+const canonicalURL = canonical || Astro.url.href;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=5, viewport-fit=cover, shrink-to-fit=no" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="description" content={description} />
+    
+    <!-- Open Graph -->
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:site_name" content="Salty Architects" />
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    
+    <!-- Canonical -->
+    <link rel="canonical" href={canonicalURL} />
+    <!-- Favicon -->
+    <link rel="icon" href="/favicon-32x32.png" sizes="32x32" />
+    <link rel="icon" href="/favicon-192x192.png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <title>{title}</title>
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-S0MTW5WSGE"></script>
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-S0MTW5WSGE');
+    </script>
+    <style>
+      @font-face {
+        font-family: 'Brown_std';
+        src: url('/assets/fonts/brown/brown-regular.woff2') format('woff2');
+        font-weight: 400;
+        font-style: normal;
+      }
+      
+      @font-face {
+        font-family: 'Brown_std';
+        src: url('/assets/fonts/brown/brown-bold.woff2') format('woff2');
+        font-weight: 700;
+        font-style: normal;
+      }
+      
+      @font-face {
+        font-family: 'Neue Haas Grotesk Text Pro';
+        src: url('/assets/fonts/brown/NHaasGroteskTXPro.woff2') format('woff2');
+        font-weight: 400;
+        font-style: normal;
+      }
+      
+      /* Navigation alignment for projects table */
+
+      body {
+        font-family: 'Neue Haas Grotesk Text Pro', sans-serif;
+        color: #3D3D3D;
+        font-size: 18px;
+        background: #E9E9E9;
+      }
+
+      .nav-links a {
+        margin-right: 40px;
+      }
+
+      body.mobile .nav-links {
+        display: none !important;
+      }
+      .mobile-only {
+        display: none;
+      }
+      body.mobile .mobile-only {
+        display: block;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen bg-[#E9E9E9] text-[#3D3D3D] text-lg">
+    <script is:inline>
+      function updateMobileClass() {
+        document.body.classList.toggle('mobile', window.innerWidth < 768);
+      }
+      window.addEventListener('DOMContentLoaded', updateMobileClass);
+      window.addEventListener('resize', updateMobileClass);
+    </script>
+    <header class={`${isHomePage ? 'absolute top-0 left-0 right-0 z-50' : 'border-b border-[#3D3D3D]'}` }>
+      <nav class={`min-h-[61px] items-center ${isHomePage ? 'text-black justify-end' : 'justify-between'} flex flex-row mx-[20px]`}>
+        {!isHomePage && <a href="/" class="tracking-[0px] text-lg">SALTY ARCHITECTS</a>}
+        <div class="nav-links right leading-none">
+          <a href="/projects" class="hover:opacity-75 transition-opacity">INDEX</a>
+          <a href="/about" class="hover:opacity-75 transition-opacity">ABOUT</a>
+          <a href="/press" class="hover:opacity-75 transition-opacity">PRESS</a>
+          <a href="/contact" class="hover:opacity-75 transition-opacity">CONTACT</a>
+        </div>
+        <div class="mobile-only">
+          <MobileSidebar />
+        </div>
+      </nav>
+    </header>
+    
+    <main class="flex-1">
+      <slot />
+    </main>
+    
+    <footer class="hidden">
+      <div class="max-w-7xl mx-auto text-center text-gray-500 text-sm">
+        © 2024 Salty Architects. All rights reserved.
+      </div>
+    </footer>
+  </body>
+</html>

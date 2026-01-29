@@ -1,0 +1,299 @@
+---
+export const prerender = false;
+
+import AdminLayout from '../../components/admin/AdminLayout.astro';
+import { supabaseAdmin } from '../../lib/supabase';
+import { markContentModified } from '../../lib/deploy';
+
+let error = '';
+let success = '';
+
+if (Astro.request.method === 'POST') {
+  const formData = await Astro.request.formData();
+  const action = formData.get('_action');
+
+  if (action === 'delete') {
+    const id = formData.get('id') as string;
+    const { error: deleteError } = await supabaseAdmin
+      .from('home_gallery')
+      .delete()
+      .eq('id', id);
+    if (deleteError) error = deleteError.message;
+    else {
+      await markContentModified();
+      success = 'Image deleted';
+    }
+  } else if (action === 'add') {
+    const imageUrl = formData.get('image_url') as string;
+    const isDark = formData.get('is_dark') === 'on';
+
+    const { data: maxOrder } = await supabaseAdmin
+      .from('home_gallery')
+      .select('sort_order')
+      .order('sort_order', { ascending: false })
+      .limit(1)
+      .single();
+
+    const nextOrder = (maxOrder?.sort_order ?? -1) + 1;
+
+    const { error: insertError } = await supabaseAdmin
+      .from('home_gallery')
+      .insert({ image_url: imageUrl, sort_order: nextOrder, is_dark: isDark });
+
+    if (insertError) error = insertError.message;
+    else {
+      await markContentModified();
+      success = 'Image added';
+    }
+  } else if (action === 'reorder') {
+    const ids = formData.get('order') as string;
+    const idList = ids.split(',');
+
+    for (let i = 0; i < idList.length; i++) {
+      await supabaseAdmin
+        .from('home_gallery')
+        .update({ sort_order: i })
+        .eq('id', idList[i]);
+    }
+    await markContentModified();
+    success = 'Order updated';
+  } else if (action === 'toggle_dark') {
+    const id = formData.get('id') as string;
+    const isDark = formData.get('is_dark') === 'true';
+
+    const { error: updateError } = await supabaseAdmin
+      .from('home_gallery')
+      .update({ is_dark: !isDark })
+      .eq('id', id);
+
+    if (updateError) error = updateError.message;
+    else await markContentModified();
+  }
+}
+
+const { data: images } = await supabaseAdmin
+  .from('home_gallery')
+  .select('*')
+  .order('sort_order', { ascending: true });
+---
+
+<AdminLayout title="Home Gallery">
+  {error && <div class="mb-4 p-3 bg-red-100 text-red-700 rounded text-sm">{error}</div>}
+  {success && <div class="mb-4 p-3 bg-green-100 text-green-700 rounded text-sm">{success}</div>}
+
+  <div class="bg-white p-6 rounded-lg shadow mb-6">
+    <h2 class="text-lg font-medium mb-4">Add New Image</h2>
+
+    <div class="mb-4 p-4 border-2 border-dashed rounded-lg" id="drop-zone">
+      <input type="file" id="file-input" accept="image/*" class="hidden" />
+      <div class="text-center">
+        <p class="text-gray-600 mb-2">Drag & drop an image or click to select</p>
+        <button type="button" id="select-btn" class="px-4 py-2 bg-gray-100 rounded hover:bg-gray-200">
+          Select File
+        </button>
+      </div>
+      <div id="upload-preview" class="hidden mt-4">
+        <img id="preview-img" class="max-h-32 mx-auto rounded" />
+        <p id="preview-name" class="text-center text-sm text-gray-600 mt-2"></p>
+      </div>
+      <div id="upload-progress" class="hidden mt-4">
+        <div class="h-2 bg-gray-200 rounded">
+          <div id="progress-bar" class="h-2 bg-blue-500 rounded" style="width: 0%"></div>
+        </div>
+      </div>
+    </div>
+
+    <form method="POST" id="add-form" class="space-y-4">
+      <input type="hidden" name="_action" value="add" />
+      <input type="hidden" name="image_url" id="image-url-input" />
+
+      <div class="flex items-center gap-2">
+        <input type="checkbox" name="is_dark" id="is_dark" />
+        <label for="is_dark" class="text-sm">Dark image (use white text)</label>
+      </div>
+
+      <button
+        type="submit"
+        id="add-btn"
+        disabled
+        class="px-4 py-2 bg-[#1a1a2e] text-white rounded hover:bg-[#2a2a4e] disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        Add to Gallery
+      </button>
+    </form>
+  </div>
+
+  <div class="bg-white p-6 rounded-lg shadow">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-lg font-medium">Gallery Images ({images?.length || 0})</h2>
+      <p class="text-sm text-gray-500">Drag to reorder</p>
+    </div>
+
+    <form method="POST" id="reorder-form">
+      <input type="hidden" name="_action" value="reorder" />
+      <input type="hidden" name="order" id="order-input" />
+    </form>
+
+    <div id="gallery-list" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      {images?.map((img) => (
+        <div class="relative group" data-id={img.id}>
+          <img src={img.image_url} class="w-full h-32 object-cover rounded cursor-move" />
+          <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded flex items-center justify-center gap-2">
+            <form method="POST" class="inline">
+              <input type="hidden" name="_action" value="toggle_dark" />
+              <input type="hidden" name="id" value={img.id} />
+              <input type="hidden" name="is_dark" value={String(img.is_dark)} />
+              <button type="submit" class={`px-2 py-1 text-xs rounded ${img.is_dark ? 'bg-white text-black' : 'bg-gray-700 text-white'}`}>
+                {img.is_dark ? 'Light' : 'Dark'}
+              </button>
+            </form>
+            <form method="POST" class="inline" onsubmit="return confirm('Delete this image?')">
+              <input type="hidden" name="_action" value="delete" />
+              <input type="hidden" name="id" value={img.id} />
+              <button type="submit" class="px-2 py-1 bg-red-600 text-white text-xs rounded">
+                Delete
+              </button>
+            </form>
+          </div>
+          <div class="absolute bottom-1 left-1 text-xs text-white bg-black/50 px-1 rounded">
+            {img.sort_order + 1}
+          </div>
+          {img.is_dark && (
+            <div class="absolute top-1 right-1 text-xs text-white bg-black/50 px-1 rounded">
+              Dark
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  </div>
+
+  <script>
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input') as HTMLInputElement;
+    const selectBtn = document.getElementById('select-btn');
+    const uploadPreview = document.getElementById('upload-preview');
+    const previewImg = document.getElementById('preview-img') as HTMLImageElement;
+    const previewName = document.getElementById('preview-name');
+    const uploadProgress = document.getElementById('upload-progress');
+    const progressBar = document.getElementById('progress-bar');
+    const imageUrlInput = document.getElementById('image-url-input') as HTMLInputElement;
+    const addBtn = document.getElementById('add-btn') as HTMLButtonElement;
+    const galleryList = document.getElementById('gallery-list');
+    const reorderForm = document.getElementById('reorder-form');
+    const orderInput = document.getElementById('order-input') as HTMLInputElement;
+
+    selectBtn?.addEventListener('click', () => fileInput?.click());
+
+    dropZone?.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('border-blue-500', 'bg-blue-50');
+    });
+
+    dropZone?.addEventListener('dragleave', () => {
+      dropZone.classList.remove('border-blue-500', 'bg-blue-50');
+    });
+
+    dropZone?.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('border-blue-500', 'bg-blue-50');
+      const files = e.dataTransfer?.files;
+      if (files?.length) handleFile(files[0]);
+    });
+
+    fileInput?.addEventListener('change', () => {
+      if (fileInput.files?.length) handleFile(fileInput.files[0]);
+    });
+
+    async function handleFile(file: File) {
+      if (!file.type.startsWith('image/')) {
+        alert('Please select an image file');
+        return;
+      }
+
+      // Show preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        if (previewImg) previewImg.src = e.target?.result as string;
+        if (previewName) previewName.textContent = file.name;
+        uploadPreview?.classList.remove('hidden');
+      };
+      reader.readAsDataURL(file);
+
+      // Upload
+      uploadProgress?.classList.remove('hidden');
+      if (progressBar) progressBar.style.width = '30%';
+
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('bucket', 'images');
+
+      try {
+        const response = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (progressBar) progressBar.style.width = '80%';
+
+        const result = await response.json();
+
+        if (response.ok) {
+          if (progressBar) progressBar.style.width = '100%';
+          imageUrlInput.value = result.url;
+          addBtn.disabled = false;
+        } else {
+          alert('Upload failed: ' + result.error);
+          uploadProgress?.classList.add('hidden');
+        }
+      } catch (err) {
+        alert('Upload failed');
+        uploadProgress?.classList.add('hidden');
+      }
+    }
+
+    // Drag and drop reordering
+    let draggedEl: HTMLElement | null = null;
+
+    galleryList?.querySelectorAll('[data-id]').forEach((item) => {
+      const el = item as HTMLElement;
+      el.draggable = true;
+
+      el.addEventListener('dragstart', () => {
+        draggedEl = el;
+        el.classList.add('opacity-50');
+      });
+
+      el.addEventListener('dragend', () => {
+        el.classList.remove('opacity-50');
+        draggedEl = null;
+      });
+
+      el.addEventListener('dragover', (e) => {
+        e.preventDefault();
+      });
+
+      el.addEventListener('drop', (e) => {
+        e.preventDefault();
+        if (draggedEl && draggedEl !== el) {
+          const allItems = Array.from(galleryList.querySelectorAll('[data-id]'));
+          const draggedIdx = allItems.indexOf(draggedEl);
+          const targetIdx = allItems.indexOf(el);
+
+          if (draggedIdx < targetIdx) {
+            el.after(draggedEl);
+          } else {
+            el.before(draggedEl);
+          }
+
+          // Submit new order
+          const newOrder = Array.from(galleryList.querySelectorAll('[data-id]'))
+            .map((item) => (item as HTMLElement).dataset.id)
+            .join(',');
+          orderInput.value = newOrder;
+          reorderForm?.requestSubmit();
+        }
+      });
+    });
+  </script>
+</AdminLayout>

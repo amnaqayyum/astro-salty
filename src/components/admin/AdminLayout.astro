@@ -1,0 +1,197 @@
+---
+import { getDeploymentStatus } from '../../lib/deploy';
+
+export interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+const currentPath = Astro.url.pathname;
+
+const deployStatus = await getDeploymentStatus();
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title} - Admin</title>
+    <style>
+      body {
+        font-family: system-ui, -apple-system, sans-serif;
+        margin: 0;
+        background: #f5f5f5;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="flex min-h-screen">
+      <aside class="w-56 bg-[#1a1a2e] text-white p-4 flex flex-col">
+        <div class="text-xl font-bold mb-8 px-2">Salty Admin</div>
+        <nav class="space-y-1 flex-1">
+          <a
+            href="/admin"
+            class={`block px-3 py-2 rounded ${currentPath === '/admin' ? 'bg-white/10' : 'hover:bg-white/5'}`}
+          >
+            Dashboard
+          </a>
+          <a
+            href="/admin/projects"
+            class={`block px-3 py-2 rounded ${currentPath.startsWith('/admin/projects') ? 'bg-white/10' : 'hover:bg-white/5'}`}
+          >
+            Projects
+          </a>
+          <a
+            href="/admin/press"
+            class={`block px-3 py-2 rounded ${currentPath.startsWith('/admin/press') ? 'bg-white/10' : 'hover:bg-white/5'}`}
+          >
+            Press
+          </a>
+          <a
+            href="/admin/gallery"
+            class={`block px-3 py-2 rounded ${currentPath === '/admin/gallery' ? 'bg-white/10' : 'hover:bg-white/5'}`}
+          >
+            Home Gallery
+          </a>
+          <div class="pt-4 mt-4 border-t border-white/10">
+            <a href="/" class="block px-3 py-2 rounded hover:bg-white/5 text-white/60" target="_blank">
+              View Site →
+            </a>
+            <form action="/admin/logout" method="POST" class="mt-1">
+              <button type="submit" class="w-full text-left px-3 py-2 rounded hover:bg-white/5 text-white/60">
+                Logout
+              </button>
+            </form>
+          </div>
+        </nav>
+
+        <!-- Deploy Status -->
+        <div class="mt-4 pt-4 border-t border-white/10">
+          <div id="deploy-status" class="text-sm">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-white/60">Status</span>
+              <span id="status-badge" class={`px-2 py-0.5 rounded text-xs ${deployStatus.isDeploying ? 'bg-yellow-500 text-black' : 'bg-green-500 text-white'}`}>
+                {deployStatus.isDeploying ? 'Building...' : 'Live'}
+              </span>
+            </div>
+            {deployStatus.hasPendingChanges && (
+              <div class="text-yellow-400 text-xs mb-2">
+                Unpublished changes
+              </div>
+            )}
+            {deployStatus.lastDeployedAt && (
+              <div class="text-white/40 text-xs mb-3">
+                Last deploy: <span id="last-deploy-time" data-time={deployStatus.lastDeployedAt}></span>
+              </div>
+            )}
+            <button
+              id="publish-btn"
+              disabled={deployStatus.isDeploying}
+              data-deploying={deployStatus.isDeploying}
+              class="w-full px-3 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white text-sm rounded font-medium transition-colors"
+            >
+              {deployStatus.isDeploying ? 'Deploying...' : 'Publish Site'}
+            </button>
+          </div>
+        </div>
+      </aside>
+      <main class="flex-1 p-8">
+        <h1 class="text-2xl font-bold mb-6">{title}</h1>
+        <slot />
+      </main>
+    </div>
+
+    <script>
+      const publishBtn = document.getElementById('publish-btn');
+      const statusBadge = document.getElementById('status-badge');
+      const lastDeployTime = document.getElementById('last-deploy-time');
+
+      // Format time in user's timezone
+      if (lastDeployTime?.dataset.time) {
+        lastDeployTime.textContent = new Date(lastDeployTime.dataset.time).toLocaleString();
+      }
+
+      publishBtn?.addEventListener('click', async () => {
+        if (publishBtn.hasAttribute('disabled')) return;
+
+        publishBtn.setAttribute('disabled', 'true');
+        publishBtn.textContent = 'Deploying...';
+        if (statusBadge) {
+          statusBadge.textContent = 'Building...';
+          statusBadge.className = 'px-2 py-0.5 rounded text-xs bg-yellow-500 text-black';
+        }
+
+        try {
+          const response = await fetch('/api/deploy', { method: 'POST' });
+          const result = await response.json();
+
+          if (result.success) {
+            publishBtn.textContent = 'Deploy triggered!';
+            // Poll for status
+            pollStatus();
+          } else {
+            publishBtn.textContent = 'Deploy failed';
+            publishBtn.removeAttribute('disabled');
+          }
+        } catch (err) {
+          publishBtn.textContent = 'Deploy failed';
+          publishBtn.removeAttribute('disabled');
+        }
+      });
+
+      async function pollStatus(immediate = false) {
+        let attempts = 0;
+        const maxAttempts = 60; // 5 minutes max
+
+        const poll = async () => {
+          try {
+            const response = await fetch('/api/deploy');
+            const status = await response.json();
+
+            if (statusBadge) {
+              if (status.isDeploying) {
+                statusBadge.textContent = 'Building...';
+                statusBadge.className = 'px-2 py-0.5 rounded text-xs bg-yellow-500 text-black';
+              } else {
+                statusBadge.textContent = 'Live';
+                statusBadge.className = 'px-2 py-0.5 rounded text-xs bg-green-500 text-white';
+                if (publishBtn) {
+                  publishBtn.textContent = 'Publish Site';
+                  publishBtn.removeAttribute('disabled');
+                  publishBtn.dataset.deploying = 'false';
+                }
+                // Update last_deployed_at (fallback if webhook didn't fire)
+                fetch('/api/deploy-complete', { method: 'POST' }).catch(() => {});
+                return; // Stop polling
+              }
+            }
+
+            attempts++;
+            if (attempts < maxAttempts) {
+              setTimeout(poll, 5000); // Poll every 5 seconds
+            }
+          } catch (err) {
+            // Ignore errors, keep polling
+            attempts++;
+            if (attempts < maxAttempts) {
+              setTimeout(poll, 5000);
+            }
+          }
+        };
+
+        if (immediate) {
+          poll();
+        } else {
+          setTimeout(poll, 5000); // Start polling after 5 seconds
+        }
+      }
+
+      // Check if currently deploying on page load
+      const isCurrentlyDeploying = publishBtn?.dataset.deploying === 'true';
+      if (isCurrentlyDeploying) {
+        pollStatus(true); // Start immediately
+      }
+    </script>
+  </body>
+</html>

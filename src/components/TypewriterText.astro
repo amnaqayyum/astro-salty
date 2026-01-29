@@ -1,0 +1,99 @@
+---
+export interface Props {
+  shortText: string;
+  fullText: string;
+  class?: string;
+}
+
+const { shortText, fullText, class: className = '' } = Astro.props;
+const id = `typewriter-${Math.random().toString(36).substr(2, 9)}`;
+---
+
+<span class={`typewriter-container ${className}`} data-id={id}>
+  <span class="short-text">{shortText}</span>
+  <span class="full-text" data-text={fullText}></span>
+</span>
+
+<style>
+  .typewriter-container {
+    position: relative;
+    display: inline-block;
+    user-select: none;
+  }
+  
+  .short-text {
+    display: inline-block;
+  }
+  
+  .full-text {
+    position: absolute;
+    left: 0;
+    top: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    z-index: 10;
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const containers = document.querySelectorAll('.typewriter-container');
+    
+    containers.forEach(container => {
+      const fullTextEl = container.querySelector('.full-text') as HTMLElement;
+      const shortTextEl = container.querySelector('.short-text') as HTMLElement;
+      const fullText = fullTextEl.dataset.text || '';
+      let typeInterval: ReturnType<typeof setInterval> | null = null;
+      let charIndex = 0;
+      let isTyping = false;
+      
+      container.addEventListener('mouseenter', () => {
+        // Clear any existing intervals
+        if (typeInterval) clearInterval(typeInterval);
+        
+        isTyping = true;
+        // If fullText is empty, start from short text length, otherwise continue from current position
+        const shortTextContent = shortTextEl.textContent || '';
+        if (fullTextEl.textContent === '') {
+          charIndex = shortTextContent.length;
+          fullTextEl.textContent = shortTextContent;
+        } else {
+          charIndex = fullTextEl.textContent?.length || shortTextContent.length;
+        }
+        shortTextEl.style.opacity = '0';
+        
+        typeInterval = setInterval(() => {
+          if (!isTyping) return;
+          
+          if (charIndex < fullText.length) {
+            fullTextEl.textContent = fullText.substring(0, charIndex + 1);
+            charIndex++;
+          } else {
+            if (typeInterval) clearInterval(typeInterval);
+          }
+        }, 15); // Faster typing - 15ms per character
+      });
+      
+      container.addEventListener('mouseleave', () => {
+        if (typeInterval) clearInterval(typeInterval);
+        isTyping = false;
+        
+        // Reverse animation
+        typeInterval = setInterval(() => {
+          if (isTyping) return;
+          
+          const shortTextContent = shortTextEl.textContent || '';
+          if (charIndex > shortTextContent.length) {
+            charIndex--;
+            fullTextEl.textContent = fullText.substring(0, charIndex);
+          } else {
+            // When we reach the short text length, transition smoothly
+            if (typeInterval) clearInterval(typeInterval);
+            fullTextEl.textContent = '';
+            shortTextEl.style.opacity = '1';
+          }
+        }, 10); // Even faster when reversing
+      });
+    });
+  });
+</script>

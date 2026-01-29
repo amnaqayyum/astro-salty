@@ -1,0 +1,25 @@
+{
+  "name": "salty-arch",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build && tsx scripts/postbuild.ts",
+    "preview": "astro preview",
+    "astro": "astro",
+    "test": "playwright test",
+    "migrate": "tsx scripts/migrate-to-supabase.ts"
+  },
+  "dependencies": {
+    "@astrojs/tailwind": "^6.0.2",
+    "@astrojs/vercel": "^9.0.2",
+    "@supabase/supabase-js": "^2.89.0",
+    "astro": "^5.10.1",
+    "tailwindcss": "^3.4.17"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.53.2",
+    "dotenv": "^17.2.3",
+    "tsx": "^4.21.0"
+  }
+}

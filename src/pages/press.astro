@@ -1,0 +1,75 @@
+---
+export const prerender = true;
+
+import TypewriterText from '../components/TypewriterText.astro';
+import Layout from '../layouts/Layout.astro';
+import { getAllPressItems } from '../utils/data';
+
+const pressItems = await getAllPressItems();
+
+function formatMonthYear(dateStr:string) {
+  const date = new Date(dateStr);
+  return date.toLocaleString('en-US', { month: 'short', year: 'numeric' });
+}
+---
+
+<Layout title="Press - Salty Architects">
+  <table class="w-full right-0">
+    <thead class="relative">
+      <tr>
+        <th
+          class="absolute top-1/2 -translate-y-1/2 right-[216px] text-sm font-medium text-gray-900"
+          style="right: 464px; margin-top: -11px; font-size: 1.075rem;"
+        ><TypewriterText shortText="P" fullText="PROJECT" />
+      </th>
+        <th
+          class="absolute top-1/2 -translate-y-1/2 right-[0px] text-sm font-medium text-gray-900"
+          style="right: 223px;margin-top: -11px; font-size: 1.075rem;"
+        ><TypewriterText shortText="D" fullText="DATE" /></th>
+      </tr>
+    </thead>
+    <tbody>
+      {pressItems.map((item) => (
+        <tr class="transition-colors cursor-pointer" onclick={`window.open('${item.link}', '_blank', 'noopener,noreferrer')`}>
+          <td class="title text-gray-900 border-t border-b border-[#3D3D3D] pl-[60px]">
+            {item.title}
+          </td>
+          <td class="info w-[238px]" style="color:#3D3D3D">{item.info}</td>
+          <td class="date w-[239px]" style="color:#3D3D3D">{formatMonthYear(item.date)}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</Layout>
+
+
+<style is:global>
+  .relative {
+    height: 64px;
+  }
+
+  table {
+    border-collapse: collapse;
+  }
+
+  tbody tr {
+    height: 30px;
+  }
+
+  tbody tr td {
+    padding: 3px 0;
+    font-size: 18px;
+    line-height: 22px;
+    vertical-align: top;
+    box-sizing: border-box;
+  }
+
+  .title {
+    font-size: 18px;
+    position: relative;
+  }
+
+  .info, .date {
+    font-size: 18px;
+  }
+</style>

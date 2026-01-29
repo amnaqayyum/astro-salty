@@ -1,0 +1,153 @@
+---
+export const prerender = true;
+
+import TypewriterText from '../components/TypewriterText.astro';
+import Layout from '../layouts/Layout.astro';
+import type { ContactInfo } from '../types';
+
+const contacts: ContactInfo[] = [
+  {
+    name: "Office",
+    email: "office@saltyarch.com"
+  },
+  {
+    name: "Hadar",
+    phone: "+972508833981",
+    email: "hadar@saltyarch.com"
+  },
+  {
+    name: "Motti",
+    phone: "+972542893957",
+    email: "office@saltyarch.com"
+  },
+  {
+    name: "Shir",
+    phone: "+972546257171",
+    email: "shir@saltyarch.com"
+  },
+  {
+    name: "Tamara",
+    phone: "+972523738241",
+    email: "tamara@saltyarch.com"
+  }
+];
+---
+
+<Layout title="Contact - Salty Architects">
+  <div class="contact-container">
+    <!-- Header -->
+    <div class="contact-header">
+      <div class="contact-phone-header">
+        <TypewriterText shortText="T" fullText="TEL" />
+      </div>
+      <div class="contact-email-header">
+        <TypewriterText shortText="E" fullText="EMAIL" />
+      </div>
+    </div>
+    
+    <!-- Rows -->
+    {contacts.map((contact, index) => (
+      <div class="contact-row" data-testid={`contact-row-${index}`}>
+        <div class="contact-name text-sm text-gray-900">{contact.name}</div>
+        <div class="contact-phone">
+          {contact.phone ? (
+            <a href={`tel:${contact.phone}`} class="hover:text-gray-900 transition-colors">
+              {contact.phone}
+            </a>
+          ) : ''}
+        </div>
+        <div class="contact-email">
+          <a href={`mailto:${contact.email}`} class="hover:text-gray-900 transition-colors">
+            {contact.email}
+          </a>
+        </div>
+      </div>
+    ))}
+  </div>
+</Layout>
+
+<style>
+  .contact-container {
+    width: 100%;
+    position: relative;
+  }
+  
+  .contact-header {
+    border-bottom: 1px solid #3D3D3D;
+    height: 64px;
+    position: relative;
+  }
+  
+  .contact-phone-header {
+    position: absolute;
+    right: 558px;
+    top: 33%;
+    transform: translateY(-50%);
+  }
+  
+  .contact-email-header {
+    position: absolute;
+    right: 322px;
+    top: 32%;
+    transform: translateY(-50%);
+  }
+  
+  .contact-row {
+    border-bottom: 1px solid #3D3D3D;
+    min-height: 140px;
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+  }
+  
+  .contact-name {
+    margin-top: 6px;
+    font-size: 18px;
+    flex: 1;
+    padding-left: 16px;
+  }
+  
+  .contact-phone {
+    position: absolute;
+    right: 431px;
+    top: 4px;
+  }
+  
+  .contact-email {
+    position: absolute;
+    right: 156px;
+    top: 2px;
+  }
+  
+  .contact-phone a,
+  .contact-email a {
+    text-decoration: none;
+  }
+
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    .contact-header {
+      display: none;
+    }
+
+    .contact-row {
+      flex-direction: column;
+      align-items: flex-start;
+      min-height: auto;
+      padding: 16px;
+      gap: 8px;
+    }
+
+    .contact-name {
+      margin-top: 0;
+      padding-left: 0;
+      font-weight: 500;
+    }
+
+    .contact-phone,
+    .contact-email {
+      position: static;
+      font-size: 14px;
+    }
+  }
+</style>

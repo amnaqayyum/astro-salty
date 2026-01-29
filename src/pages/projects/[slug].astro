@@ -1,0 +1,22 @@
+---
+export const prerender = true;
+
+import { getAllProjects, getProjectBySlug } from '../../utils/data';
+
+export async function getStaticPaths() {
+  const projects = await getAllProjects();
+  
+  return projects.map((project) => ({
+    params: { slug: project.slug },
+    props: { project },
+  }));
+}
+
+// This will redirect to the main projects page
+// The actual rendering is handled by the JavaScript in the main projects page
+---
+
+<script>
+  // Redirect to main projects page - the JavaScript there will handle showing the project
+  window.location.replace('/projects');
+</script>

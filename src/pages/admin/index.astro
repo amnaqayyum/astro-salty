@@ -1,0 +1,27 @@
+---
+export const prerender = false;
+
+import AdminLayout from '../../components/admin/AdminLayout.astro';
+import { supabaseAdmin } from '../../lib/supabase';
+
+const { count: projectCount } = await supabaseAdmin
+  .from('projects')
+  .select('*', { count: 'exact', head: true });
+
+const { count: pressCount } = await supabaseAdmin
+  .from('press_items')
+  .select('*', { count: 'exact', head: true });
+---
+
+<AdminLayout title="Dashboard">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <a href="/admin/projects" class="block p-6 bg-white rounded-lg shadow hover:shadow-md transition-shadow">
+      <div class="text-3xl font-bold">{projectCount ?? 0}</div>
+      <div class="text-gray-600">Projects</div>
+    </a>
+    <a href="/admin/press" class="block p-6 bg-white rounded-lg shadow hover:shadow-md transition-shadow">
+      <div class="text-3xl font-bold">{pressCount ?? 0}</div>
+      <div class="text-gray-600">Press Items</div>
+    </a>
+  </div>
+</AdminLayout>

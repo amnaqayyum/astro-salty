@@ -1,0 +1,62 @@
+---
+export const prerender = false;
+
+import AdminLayout from '../../../components/admin/AdminLayout.astro';
+import { supabaseAdmin } from '../../../lib/supabase';
+
+const { data: projects } = await supabaseAdmin
+  .from('projects')
+  .select('id, title, slug, year, category, status, sort_order')
+  .order('sort_order', { ascending: true, nullsFirst: false })
+  .order('date', { ascending: false });
+---
+
+<AdminLayout title="Projects">
+  <div class="mb-4">
+    <a
+      href="/admin/projects/new"
+      class="inline-block px-4 py-2 bg-[#1a1a2e] text-white rounded hover:bg-[#2a2a4e]"
+    >
+      + New Project
+    </a>
+  </div>
+
+  <div class="bg-white rounded-lg shadow overflow-hidden">
+    <table class="w-full">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-4 py-3 text-left text-sm font-medium text-gray-600">Title</th>
+          <th class="px-4 py-3 text-left text-sm font-medium text-gray-600">Year</th>
+          <th class="px-4 py-3 text-left text-sm font-medium text-gray-600">Category</th>
+          <th class="px-4 py-3 text-left text-sm font-medium text-gray-600">Status</th>
+          <th class="px-4 py-3 text-left text-sm font-medium text-gray-600">Order</th>
+          <th class="px-4 py-3 text-right text-sm font-medium text-gray-600">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y">
+        {projects?.map((project) => (
+          <tr class="hover:bg-gray-50">
+            <td class="px-4 py-3">
+              <a href={`/admin/projects/${project.slug}`} class="text-blue-600 hover:underline">
+                {project.title}
+              </a>
+            </td>
+            <td class="px-4 py-3 text-gray-600">{project.year || '-'}</td>
+            <td class="px-4 py-3 text-gray-600">{project.category || '-'}</td>
+            <td class="px-4 py-3">
+              <span class={`px-2 py-1 text-xs rounded ${project.status === 'publish' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
+                {project.status}
+              </span>
+            </td>
+            <td class="px-4 py-3 text-gray-600">{project.sort_order ?? '-'}</td>
+            <td class="px-4 py-3 text-right">
+              <a href={`/admin/projects/${project.slug}`} class="text-blue-600 hover:underline text-sm">
+                Edit
+              </a>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</AdminLayout>

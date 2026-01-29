@@ -1,0 +1,170 @@
+---
+export const prerender = true;
+
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="About - Salty Architects">
+  <div class="about-content">
+    <div class="about-photo-col">
+      <img
+        src="/assets/about/team.jpeg"
+        alt="Hadar Menkes and Motti Rauchwerger"
+        class="about-photo"
+      />
+    </div>
+
+    <div class="about-text-wrapper">
+      <div class="about-text">
+        <div class="about-text-left">
+          <p>
+            Salty Architects is a Tel Aviv based studio for Architecture, co-founded by Architects Hadar Menkes and Motti Rauchwerger. The studio pursues creation of environments, playfulness in materials and strives to a meaningful dialogue on design. Our interventions are both respectful to the past and a result of a collaborative process with the clients' needs. Salty Architects conducts a wide range of projects in various sectors, including cultural projects, exhibitions and residential projects as well as offices and hotels.
+          </p>
+          <p>
+            <u>Motti Rauchwerger</u>, graduate of the Fine Arts program in the Studio school of Art, New York (NYSS 2002), studied Architecture at the Bezalel Academy of Arts and Design, Jerusalem (Cum Laude 2011). After graduating from Bezalel, Motti joined ARStudio (Arch. Arnon Nir) and led high-end residential projects for several years, and went on to complete his Graduate studies at the Architectural Association, London (2013). He then moved to New York to work for Leroy Street Studio (Architecture) on high-end residential projects for a few years. After moving back to Tel Aviv, Motti taught Design studio at Bezalel Academy of Arts and Design, and in 2018, he co-founded SALTY Architects in Tel Aviv.
+          </p>
+        </div>
+
+        <div class="about-text-right">
+          <p>
+            <u>Hadar Menkes</u>, graduate of Architecture at the Bezalel Academy of Art and Design, Jerusalem (2011). Following her graduation, Hadar joined HQ architects (Arch. Erez Ella) and led design teams in public and educational projects. After graduating from the Architectural Association, London (2013), Hadar moved to New York to work for Leroy Street Studio (Architecture) on high-end residential projects for a few years. In 2018, Hadar co-founded SALTY Architects in Tel Aviv.
+          </p>
+          <p>
+            <u>Tamara Michaeli</u>, graduate of Architecture at the Bezalel Academy of Art and Design, Jerusalem (2011). During her degree and following her graduation she worked on large scale master plans for the city of Jerusalem (under Peled Kimelman architects). In 2012 Tamara moved to Tel Aviv, and has since managed complex residential buildings and urban planning projects, from the design stage through regulation, construction coordination and until successful completion. Tamara has been a certified architect since 2015 and has vast experience with regulation and statutory process.
+          </p>
+          <p>
+            <u>Shir Aviv</u>, graduate of the Interior Design program at HIT (Cum Laude, 2016). After completing her degree, she worked at several architecture and design firms, managing diverse projects and developing expertise in planning and subtle problem-solving with a meticulous approach to design. Shir joined SALTY Architects at the end of 2018, where she manages projects of various scales and leads the design process. She became a partner at the studio. In addition to her professional work, Shir teaches Design Studio in HIT's Bachelor of Design program.
+          </p>
+        </div>
+      </div>
+      <div class="about-footer">
+        <div class="about-footer-left">
+          <a href="https://www.instagram.com/salty_architects/" target="_blank" rel="noopener noreferrer">
+            → INSTAGRAM
+          </a>
+          <span class="address">4 Levontin St., Tel Aviv – Yafo</span>
+        </div>
+        <div class="about-footer-right">
+          <span>Design: Field Day Studio</span>
+          <span>Code: Gabi Grinberg</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .about-content {
+    gap: 52px;
+    display: flex;
+    padding: 40px 70px 40px 40px;
+  }
+
+  .about-photo-col {
+    width: 283px;
+    flex-shrink: 0;
+  }
+
+  .about-photo {
+    width: 100%;
+    height: 425px;
+    object-fit: cover;
+  }
+
+  .about-text-wrapper {
+    gap: 120px;
+    display: flex;
+    flex-direction: column
+  }
+
+  .about-text {
+    gap: 20px;
+    display: flex;
+  }
+
+  .about-text-wrapper p + p {
+    margin-top: 24px;
+  }
+
+  .about-text-left,
+  .about-text-right {
+    flex: 1;
+    color: #3D3D3D;
+  }
+
+  .about-footer {
+    gap: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .about-footer-left {
+    gap: 20px;
+    display: flex;
+  }
+
+  .about-footer-right {
+    gap: 20px;
+    display: flex;
+    font-size: 14px;
+  }
+
+  .about-footer a {
+    text-decoration: none;
+  }
+
+  .about-footer a:hover {
+    opacity: 0.7;
+  }
+
+  @media (min-width: 1499.98px) {
+    .about-content {
+      gap: 72px;
+      padding: 60px 90px 40px 60px;
+    }
+    .about-text-left,
+    .about-text-right {
+      font-size: 22px;
+      line-height: 30px;
+    }
+
+    .about-footer {
+      gap: 40px;
+      font-size: 25px;
+    }
+
+    .about-footer-right {
+      gap: 80px;
+      display: flex;
+      font-size: 14px;
+    }
+  }
+
+  @media (max-width: 1199.98px) {
+    .about-text, .about-footer {
+      gap: 0;
+      flex-wrap: wrap;
+    }
+    .about-text-left, .about-text-right {
+      flex: auto;
+      width: 100%;
+    }
+  }
+  
+  @media (max-width: 991.98px) {
+    .about-content {
+      gap: 20px;
+      padding: 20px;
+    }
+  }
+
+  @media (max-width: 767.98px) {
+    .about-photo-col {
+      width: 100%;
+    }
+    .about-content {
+      flex-wrap: wrap;
+    }
+  }
+</style>
