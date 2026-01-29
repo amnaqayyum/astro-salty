@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build && tsx scripts/postbuild.ts",
+    "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
     "test": "playwright test",
