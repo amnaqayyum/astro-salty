@@ -93,6 +93,14 @@ const canonicalURL = canonical || Astro.url.href;
       body.mobile .mobile-only {
         display: block;
       }
+      @media (max-width: 767.98px) {
+        header {
+          border: none;
+        }
+        header nav .text-lg {
+          font-size: 1rem;
+        }
+      }
     </style>
   </head>
   <body class="min-h-screen bg-[#E9E9E9] text-[#3D3D3D] text-lg">

@@ -21,7 +21,10 @@ import Layout from '../layouts/Layout.astro';
             Salty Architects is a Tel Aviv based studio for Architecture, co-founded by Architects Hadar Menkes and Motti Rauchwerger. The studio pursues creation of environments, playfulness in materials and strives to a meaningful dialogue on design. Our interventions are both respectful to the past and a result of a collaborative process with the clients' needs. Salty Architects conducts a wide range of projects in various sectors, including cultural projects, exhibitions and residential projects as well as offices and hotels.
           </p>
           <p>
-            <u>Motti Rauchwerger</u>, graduate of the Fine Arts program in the Studio school of Art, New York (NYSS 2002), studied Architecture at the Bezalel Academy of Arts and Design, Jerusalem (Cum Laude 2011). After graduating from Bezalel, Motti joined ARStudio (Arch. Arnon Nir) and led high-end residential projects for several years, and went on to complete his Graduate studies at the Architectural Association, London (2013). He then moved to New York to work for Leroy Street Studio (Architecture) on high-end residential projects for a few years. After moving back to Tel Aviv, Motti taught Design studio at Bezalel Academy of Arts and Design, and in 2018, he co-founded SALTY Architects in Tel Aviv.
+            <u>Motti Rauchwerger</u>, graduate of the Fine Arts program in the Studio school of Art, New York (NYSS 2002), studied Architecture at the Bezalel Academy of Arts and Design, Jerusalem (Cum Laude 2011).
+          </p>
+          <p class="para-indent">
+            After graduating from Bezalel, Motti joined ARStudio (Arch. Arnon Nir) and led high-end residential projects for several years, and went on to complete his Graduate studies at the Architectural Association, London (2013). He then moved to New York to work for Leroy Street Studio (Architecture) on high-end residential projects for a few years. After moving back to Tel Aviv, Motti taught Design studio at Bezalel Academy of Arts and Design, and in 2018, he co-founded SALTY Architects in Tel Aviv.
           </p>
         </div>
 
@@ -141,6 +144,13 @@ import Layout from '../layouts/Layout.astro';
     }
   }
 
+  @media(min-width: 768px) {
+    .para-indent {
+      margin-top: 0 !important;
+      text-indent: 3.75rem;
+    }
+  }
+
   @media (max-width: 1199.98px) {
     .about-text, .about-footer {
       gap: 0;
@@ -154,23 +164,53 @@ import Layout from '../layouts/Layout.astro';
   
   @media (max-width: 991.98px) {
     .about-content {
-      gap: 20px;
+      gap: 30px;
       padding: 20px;
     }
   }
 
   @media (max-width: 767.98px) {
+    .about-content {
+      padding: 0 20px 70px;
+    }
+    .about-text {
+      font-size: 16px;
+    }
     .about-photo-col {
       width: 100%;
     }
     .about-content {
       flex-wrap: wrap;
     }
-  }
-
-    @media (max-width: 576px) {
-        .about-footer-left {
-          font-size: 14px;
-      }
+    .about-text-wrapper {
+      gap: 70px;
     }
+    .about-text-wrapper p+p {
+      margin-top: 0;
+      text-indent: 1.5rem;
+    }
+    .about-photo {
+      height: 345px;
+    }
+    .about-footer {
+      gap: 70px;
+    }
+    .about-footer-left, .about-footer-right {
+      gap: 0;
+      flex-wrap: wrap;
+    }
+    .about-footer-left * {
+      width: 100%;
+      font-size: 16px;
+      line-height: 30px;
+    }
+    .about-footer-right * {
+      width: 100%;
+      font-size: 10px;
+      line-height: 18px;
+    }
+    .para-indent {
+      text-indent: 0 !important;
+    }
+  }
 </style>
