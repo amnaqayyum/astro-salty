@@ -80,8 +80,8 @@ const canonicalURL = canonical || Astro.url.href;
         background: #E9E9E9;
       }
 
-      .nav-links a {
-        margin-right: 40px;
+      .nav-links a + a {
+        margin-left: 40px;
       }
 
       body.mobile .nav-links {
@@ -112,7 +112,7 @@ const canonicalURL = canonical || Astro.url.href;
       window.addEventListener('resize', updateMobileClass);
     </script>
     <header class={`${isHomePage ? 'absolute top-0 left-0 right-0 z-50' : 'border-b border-[#3D3D3D]'}` }>
-      <nav class={`min-h-[61px] items-center ${isHomePage ? 'text-black justify-end' : 'justify-between'} flex flex-row mx-[20px]`}>
+      <nav class={`min-h-[62px] items-center ${isHomePage ? 'text-black justify-end' : 'justify-between'} flex flex-row mx-[20px]`}>
         {!isHomePage && <a href="/" class="tracking-[0px] text-lg">SALTY ARCHITECTS</a>}
         <div class="nav-links right leading-none">
           <a href="/projects" class="hover:opacity-75 transition-opacity">INDEX</a>

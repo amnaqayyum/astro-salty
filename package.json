@@ -7,8 +7,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "test": "playwright test",
-    "migrate": "tsx scripts/migrate-to-supabase.ts"
+    "test": "playwright test"
   },
   "dependencies": {
     "@astrojs/tailwind": "^6.0.2",

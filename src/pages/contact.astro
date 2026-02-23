@@ -34,120 +34,132 @@ const contacts: ContactInfo[] = [
 ---
 
 <Layout title="Contact - Salty Architects">
-  <div class="contact-container">
-    <!-- Header -->
-    <div class="contact-header">
-      <div class="contact-phone-header">
-        <TypewriterText shortText="T" fullText="TEL" />
+  <div class="min-h-screen">
+    <div class="list-container">
+      <div class="list-header">
+        <div class="list-title"></div>
+
+        <div class="list-meta">
+          <div class="meta-col-one">
+            <TypewriterText shortText="T" fullText="TEL" />
+          </div>
+          <div class="meta-col-two">
+            <TypewriterText shortText="E" fullText="EMAIL" />
+          </div>
+        </div>
       </div>
-      <div class="contact-email-header">
-        <TypewriterText shortText="E" fullText="EMAIL" />
-      </div>
+
+      {contacts.map((item, index) => (
+        <div class="list-row" data-testid={`row-${index}`}>
+          <div class="row-title">{item.name}</div>
+
+          <div class="list-meta">
+            <div class="meta-col-one">
+              <span>T</span>{' '}
+              {item.phone ? (
+                <a
+                  href={`tel:${item.phone}`}
+                  class="hover:opacity-75 transition-opacity"
+                >
+                  {item.phone}
+                </a>
+              ) : ''}
+            </div>
+
+            <div class="meta-col-two">
+              <span>E</span>{' '}
+              <a
+                href={`mailto:${item.email}`}
+                class="hover:opacity-75 transition-opacity"
+              >
+                {item.email}
+              </a>
+            </div>
+          </div>
+        </div>
+      ))}
     </div>
-    
-    <!-- Rows -->
-    {contacts.map((contact, index) => (
-      <div class="contact-row" data-testid={`contact-row-${index}`}>
-        <div class="contact-name text-sm text-gray-900">{contact.name}</div>
-        <div class="contact-phone">
-          {contact.phone ? (
-            <a href={`tel:${contact.phone}`} class="hover:text-gray-900 transition-colors">
-              {contact.phone}
-            </a>
-          ) : ''}
-        </div>
-        <div class="contact-email">
-          <a href={`mailto:${contact.email}`} class="hover:text-gray-900 transition-colors">
-            {contact.email}
-          </a>
-        </div>
-      </div>
-    ))}
   </div>
 </Layout>
 
 <style>
-  .contact-container {
-    width: 100%;
-    position: relative;
+  .list-container {
+    color: #3D3D3D;
+    margin-bottom: 80px;
   }
-  
-  .contact-header {
-    border-bottom: 1px solid #3D3D3D;
-    height: 64px;
-    position: relative;
-  }
-  
-  .contact-phone-header {
-    position: absolute;
-    right: 558px;
-    top: 33%;
-    transform: translateY(-50%);
-  }
-  
-  .contact-email-header {
-    position: absolute;
-    right: 322px;
-    top: 32%;
-    transform: translateY(-50%);
-  }
-  
-  .contact-row {
-    border-bottom: 1px solid #3D3D3D;
-    min-height: 140px;
-    position: relative;
+  .list-meta {
     display: flex;
-    align-items: flex-start;
+    min-width: 565px;
   }
-  
-  .contact-name {
-    margin-top: 6px;
-    font-size: 18px;
+  .list-header, .list-row {
+    display: flex;
+    padding: 0 20px;
+    min-height: 62px;
+    border-bottom: 1px solid #3D3D3D;
+  }
+  .list-title, .row-title {
     flex: 1;
-    padding-left: 16px;
+    line-height: 33px;
   }
-  
-  .contact-phone {
-    position: absolute;
-    right: 431px;
-    top: 4px;
+  .meta-col-one {
+    flex-shrink: 0;
+    min-width: 230px;
+    line-height: 33px;
   }
-  
-  .contact-email {
-    position: absolute;
-    right: 156px;
-    top: 2px;
+  .meta-col-two {
+    flex-shrink: 0;
+    min-width: 335px;
+    line-height: 33px;
   }
-  
-  .contact-phone a,
-  .contact-email a {
+  .list-row {
+    min-height: 200px;
+  }
+  .meta-col-one a, .meta-col-two a {
     text-decoration: none;
   }
-
-  /* Mobile styles */
-  @media (max-width: 768px) {
-    .contact-header {
+  @media (min-width: 768px) {
+    .meta-col-one span, .meta-col-two span {
       display: none;
     }
-
-    .contact-row {
-      flex-direction: column;
+  }
+  @media (min-width: 768px) and (max-width: 991.98px) {
+    .list-meta {
+      min-width: 450px;
+    }
+    .meta-col-one {
+      min-width: 200px;
+    }
+    .meta-col-two {
+      min-width: 250px;
+    }
+  }
+  @media (max-width: 768px) {
+    .list-header {
+      display: none;
+    }
+    .list-row {
+      min-height: 180px;
+      padding-top: 10px;
       align-items: flex-start;
-      min-height: auto;
-      padding: 16px;
-      gap: 8px;
     }
-
-    .contact-name {
-      margin-top: 0;
-      padding-left: 0;
-      font-weight: 500;
+    .row-title {
+      flex: unset;
+      min-width: 80px;
+      font-size: 16px;
+      line-height: inherit;
     }
-
-    .contact-phone,
-    .contact-email {
-      position: static;
-      font-size: 14px;
+    .list-meta {
+      flex-wrap: wrap;
+      min-width: auto;
+    }
+    .meta-col-one, .meta-col-two {
+      flex: 1;
+      gap: 16px;
+      display: flex;
+      font-size: 16px;
+      min-width: 100%;
+      align-items: center;
+      line-height: inherit;
     }
   }
 </style>

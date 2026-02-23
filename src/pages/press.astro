@@ -14,62 +14,134 @@ function formatMonthYear(dateStr:string) {
 ---
 
 <Layout title="Press - Salty Architects">
-  <table class="w-full right-0">
-    <thead class="relative">
-      <tr>
-        <th
-          class="absolute top-1/2 -translate-y-1/2 right-[216px] text-sm font-medium text-gray-900"
-          style="right: 464px; margin-top: -11px; font-size: 1.075rem;"
-        ><TypewriterText shortText="P" fullText="PROJECT" />
-      </th>
-        <th
-          class="absolute top-1/2 -translate-y-1/2 right-[0px] text-sm font-medium text-gray-900"
-          style="right: 223px;margin-top: -11px; font-size: 1.075rem;"
-        ><TypewriterText shortText="D" fullText="DATE" /></th>
-      </tr>
-    </thead>
-    <tbody>
+  <div class="min-h-screen">
+    <div class="list-container">
+      <div class="list-header">
+        <div class="list-title"></div>
+
+        <div class="list-meta">
+          <div class="meta-col-one">
+            <TypewriterText shortText="P" fullText="PROJECT" />
+          </div>
+          <div class="meta-col-two">
+            <TypewriterText shortText="D" fullText="DATE" />
+          </div>
+        </div>
+      </div>
+
       {pressItems.map((item) => (
-        <tr class="transition-colors cursor-pointer" onclick={`window.open('${item.link}', '_blank', 'noopener,noreferrer')`}>
-          <td class="title text-gray-900 border-t border-b border-[#3D3D3D] pl-[60px]">
-            {item.title}
-          </td>
-          <td class="info w-[238px]" style="color:#3D3D3D">{item.info}</td>
-          <td class="date w-[239px]" style="color:#3D3D3D">{formatMonthYear(item.date)}</td>
-        </tr>
+        <div class="list-row" onclick={`window.open('${item.link}', '_blank', 'noopener,noreferrer')`}>
+          <div class="row-title">{item.title}</div>
+
+          <div class="list-meta">
+            <div class="meta-col-one">
+              {item.info}
+            </div>
+
+            <div class="meta-col-two">
+              {formatMonthYear(item.date)}
+            </div>
+          </div>
+        </div>
       ))}
-    </tbody>
-  </table>
+    </div>
+  </div>
 </Layout>
 
 
-<style is:global>
-  .relative {
-    height: 64px;
+<style>
+  .list-container {
+    color: #3D3D3D;
+    margin-bottom: 80px;
+    border-bottom: 1px solid #3D3D3D;
   }
-
-  table {
-    border-collapse: collapse;
+  .list-meta {
+    display: flex;
+    min-width: 500px;
   }
-
-  tbody tr {
-    height: 30px;
+  .list-header {
+    display: flex;
+    padding: 0 20px;
+    min-height: 62px;
+    border-bottom: 1px solid #3D3D3D;
   }
-
-  tbody tr td {
-    padding: 3px 0;
-    font-size: 18px;
-    line-height: 22px;
-    vertical-align: top;
-    box-sizing: border-box;
+  .list-header .meta-col-one, .list-header .meta-col-two {
+    line-height: 33px;
   }
-
-  .title {
-    font-size: 18px;
-    position: relative;
+  .list-title, .row-title {
+    flex: 1;
+    line-height: 29px;
   }
-
-  .info, .date {
-    font-size: 18px;
+  .list-row {
+    cursor: pointer;
+  }
+  .meta-col-one {
+    flex-shrink: 0;
+    min-width: 270px;
+    line-height: 29px;
+  }
+  .meta-col-two {
+    flex-shrink: 0;
+    min-width: 230px;
+    line-height: 29px;
+  }
+  .list-row {
+    gap: 20px;
+    display: flex;
+    padding: 0 20px;
+  }
+  .meta-col-one a, .meta-col-two a {
+    text-decoration: none;
+  }
+  @media (min-width: 768px) {
+    .list-row + .list-row .row-title {
+      margin-left: -20px;
+      padding-left: 20px;
+      border-top: 1px solid #3D3D3D;
+    }
+  }
+  @media (min-width: 768px) and (max-width: 991.98px) {
+    .list-meta {
+      min-width: 450px;
+    }
+    .meta-col-one {
+      min-width: 250px;
+    }
+    .meta-col-two {
+      min-width: 200px;
+    }
+  }
+  @media (max-width: 768px) {
+    .list-container {
+      border: none;
+    }
+    .list-header {
+      display: none;
+    }
+    .list-row {
+      gap: 10px;
+      padding: 8px 20px;
+      align-items: flex-start;
+      border-bottom: 1px solid #3D3D3D;
+    }
+    .row-title {
+      flex: 0 50%;
+      font-size: 16px;
+      line-height: normal;
+    }
+    .list-meta {
+      flex: 0 50%;
+      flex-wrap: wrap;
+      min-width: auto;
+    }
+    .meta-col-one, .meta-col-two {
+      flex: 1;
+      font-size: 16px;
+      min-width: 100%;
+      line-height: normal;
+    }
+    .meta-col-two {
+      line-height: 22px;
+    }
   }
 </style>

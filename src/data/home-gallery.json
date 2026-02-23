@@ -1,0 +1,58 @@
+[
+  {
+    "id": "74e81660-3faf-448e-ad74-e273e4487b3a",
+    "image_url": "https://hxppzdgodslvqatotchm.supabase.co/storage/v1/object/public/images/home-gallery/1766949706103-0.png",
+    "sort_order": 1,
+    "is_dark": true,
+    "created_at": "2025-12-28T19:21:47.808979+00:00"
+  },
+  {
+    "id": "c70feae5-f60f-46bb-b6d4-a947e5eaf5a8",
+    "image_url": "https://hxppzdgodslvqatotchm.supabase.co/storage/v1/object/public/images/home-gallery/1766949707706-1.png",
+    "sort_order": 2,
+    "is_dark": false,
+    "created_at": "2025-12-28T19:21:48.382075+00:00"
+  },
+  {
+    "id": "582f4f24-c437-4886-929f-e994befdf990",
+    "image_url": "https://hxppzdgodslvqatotchm.supabase.co/storage/v1/object/public/images/home-gallery/1766949708268-2.png",
+    "sort_order": 3,
+    "is_dark": false,
+    "created_at": "2025-12-28T19:21:48.919593+00:00"
+  },
+  {
+    "id": "0c38ded3-ac30-4163-8677-68d02f8a1aa0",
+    "image_url": "https://hxppzdgodslvqatotchm.supabase.co/storage/v1/object/public/images/home-gallery/1766949708760-3.png",
+    "sort_order": 4,
+    "is_dark": false,
+    "created_at": "2025-12-28T19:21:49.412971+00:00"
+  },
+  {
+    "id": "9ad30e63-1081-4fc2-9089-601d6b205286",
+    "image_url": "https://hxppzdgodslvqatotchm.supabase.co/storage/v1/object/public/images/home-gallery/1766949709272-4.png",
+    "sort_order": 5,
+    "is_dark": true,
+    "created_at": "2025-12-28T19:21:49.87105+00:00"
+  },
+  {
+    "id": "f00747b7-a3b9-4cfa-8a67-960f63b44d9c",
+    "image_url": "https://hxppzdgodslvqatotchm.supabase.co/storage/v1/object/public/images/home-gallery/1766949709713-5.png",
+    "sort_order": 6,
+    "is_dark": false,
+    "created_at": "2025-12-28T19:21:50.411025+00:00"
+  },
+  {
+    "id": "843489b5-a1cc-4bdd-a21a-739e5cbbf670",
+    "image_url": "https://hxppzdgodslvqatotchm.supabase.co/storage/v1/object/public/images/home-gallery/1766949710269-6.png",
+    "sort_order": 7,
+    "is_dark": false,
+    "created_at": "2025-12-28T19:21:50.930608+00:00"
+  },
+  {
+    "id": "baa6a766-c8c4-466f-9843-eb22eafa9d70",
+    "image_url": "https://hxppzdgodslvqatotchm.supabase.co/storage/v1/object/public/images/home-gallery/1766949710772-7.png",
+    "sort_order": 8,
+    "is_dark": false,
+    "created_at": "2025-12-28T19:21:51.370676+00:00"
+  }
+]

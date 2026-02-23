@@ -9,73 +9,76 @@ const projects = await getAllProjects();
 ---
 
 <Layout title="Salty Architects - Projects">
-  <div id="projects-container">
-    <!-- Projects Table -->
-    <div id="projects-table" class="projects-view">
-      <!-- Fixed Header -->
-        <div class="grid px-5 h-[51px] items-start pt-[5px] font-normal" style="grid-template-columns: 1fr var(--col-size) var(--col-type) var(--col-year) var(--col-status) var(--col-arrow);">
-          <div class="pl-0 whitespace-nowrap overflow-hidden text-ellipsis"></div>
-          <div class="text-left whitespace-nowrap overflow-hidden text-ellipsis" style="width: var(--col-size);">
-            <TypewriterText shortText="S" fullText="SIZE" />
+  <div class="min-h-screen pt-[61px]">
+    <div id="projects-container">
+      <!-- Projects Table -->
+      <div id="projects-table" class="projects-view">
+        <!-- Fixed Header -->
+        <div class=" border-t border-b border-[#3D3D3D]">
+          <div class="grid px-5 h-[51px] items-start pt-[5px] font-normal" style="grid-template-columns: 1fr var(--col-size) var(--col-type) var(--col-year) var(--col-status) var(--col-arrow);">
+            <div class="pl-0 whitespace-nowrap overflow-hidden text-ellipsis"></div>
+            <div class="text-left whitespace-nowrap overflow-hidden text-ellipsis" style="width: var(--col-size);">
+              <TypewriterText shortText="S" fullText="SIZE" />
+            </div>
+            <div class="text-left whitespace-nowrap overflow-hidden text-ellipsis" style="width: var(--col-type);">
+              <TypewriterText shortText="T" fullText="TYPE" />
+            </div>
+            <div class="text-left whitespace-nowrap overflow-hidden text-ellipsis" style="width: var(--col-year);">
+              <TypewriterText shortText="Y" fullText="YEAR" />
+            </div>
+            <div class="text-left whitespace-nowrap overflow-hidden text-ellipsis" style="width: var(--col-status);">
+              <TypewriterText shortText="S" fullText="STATUS" />
+            </div>
+            <div class="whitespace-nowrap overflow-hidden text-ellipsis" style="width: var(--col-arrow);"></div>
           </div>
-          <div class="text-left whitespace-nowrap overflow-hidden text-ellipsis" style="width: var(--col-type);">
-            <TypewriterText shortText="T" fullText="TYPE" />
-          </div>
-          <div class="text-left whitespace-nowrap overflow-hidden text-ellipsis" style="width: var(--col-year);">
-            <TypewriterText shortText="Y" fullText="YEAR" />
-          </div>
-          <div class="text-left whitespace-nowrap overflow-hidden text-ellipsis" style="width: var(--col-status);">
-            <TypewriterText shortText="S" fullText="STATUS" />
-          </div>
-          <div class="whitespace-nowrap overflow-hidden text-ellipsis" style="width: var(--col-arrow);"></div>
         </div>
-      </div>
-      
-      <!-- Scrollable Table Body -->
-      <div class="overflow-y-auto h-[calc(100vh-112px)] pb-[32px]">
-        {projects.map((project) => (
-          <div 
-            class="project-row cursor-pointer relative group transition-all duration-300 ease-in-out"
-            data-slug={project.slug}
-            data-project={JSON.stringify(project)}
-          >
-            <!-- Row Header -->
-            <div class="grid px-5 h-[31px] items-center border-b border-[#3D3D3D]" style="grid-template-columns: 1fr var(--col-size) var(--col-type) var(--col-year) var(--col-status) var(--col-arrow);">
-              <div class="pl-0 whitespace-nowrap overflow-hidden text-ellipsis">{project.title}</div>
-              <div class="text-left whitespace-nowrap overflow-hidden text-ellipsis" style="width: var(--col-size);">{project.metadata.info}</div>
-              <div class="text-left whitespace-nowrap overflow-hidden text-ellipsis" style="width: var(--col-type);">{project.metadata.category}</div>
-              <div class="text-left whitespace-nowrap overflow-hidden text-ellipsis" style="width: var(--col-year);">{project.metadata.year}</div>
-              <div class="text-left whitespace-nowrap overflow-hidden text-ellipsis" style="width: var(--col-status);">{project.metadata.status}</div>
-              <div class="absolute right-[15px] flex items-center">
-                <img src="/assets/icons/project-arrow.svg" alt="" class="w-[14px] h-[11px] project-arrow" />
-                <div class="project-close hidden p-2 -m-2 cursor-pointer">
-                  <img src="/assets/icons/project-x.svg" alt="" class="w-[14px] h-[14px]" />
+        
+        <!-- Scrollable Table Body -->
+        <div class="overflow-y-auto h-[calc(100vh-112px)] pb-[32px]">
+          {projects.map((project) => (
+            <div 
+              class="project-row cursor-pointer relative group transition-all duration-300 ease-in-out"
+              data-slug={project.slug}
+              data-project={JSON.stringify(project)}
+            >
+              <!-- Row Header -->
+              <div class="grid px-5 h-[31px] items-center border-b border-[#3D3D3D]" style="grid-template-columns: 1fr var(--col-size) var(--col-type) var(--col-year) var(--col-status) var(--col-arrow);">
+                <div class="pl-0 whitespace-nowrap overflow-hidden text-ellipsis">{project.title}</div>
+                <div class="text-left whitespace-nowrap overflow-hidden text-ellipsis" style="width: var(--col-size);">{project.metadata.info}</div>
+                <div class="text-left whitespace-nowrap overflow-hidden text-ellipsis" style="width: var(--col-type);">{project.metadata.category}</div>
+                <div class="text-left whitespace-nowrap overflow-hidden text-ellipsis" style="width: var(--col-year);">{project.metadata.year}</div>
+                <div class="text-left whitespace-nowrap overflow-hidden text-ellipsis" style="width: var(--col-status);">{project.metadata.status}</div>
+                <div class="absolute right-[15px] flex items-center">
+                  <img src="/assets/icons/project-arrow.svg" alt="" class="w-[14px] h-[11px] project-arrow" />
+                  <div class="project-close hidden p-2 -m-2 cursor-pointer">
+                    <img src="/assets/icons/project-x.svg" alt="" class="w-[14px] h-[14px]" />
+                  </div>
                 </div>
               </div>
-            </div>
-            
-            <!-- Expanded Content -->
-            <div class="project-content hidden">
-              <div class="relative w-full flex items-center justify-center" style="height: calc(100vh - 180px); margin-top: -1px;">
-                <!-- Main Image -->
-                <div class="gallery-image-container relative" style="max-width: calc(100vw - 300px); height: 100%;">
-                  <img class="gallery-image-1 absolute inset-0 max-w-full max-h-full m-auto transition-opacity duration-300" src="" alt="" />
-                  <img class="gallery-image-2 absolute inset-0 max-w-full max-h-full m-auto opacity-0 transition-opacity duration-300" src="" alt="" />
+              
+              <!-- Expanded Content -->
+              <div class="project-content hidden">
+                <div class="relative w-full flex items-center justify-center" style="height: calc(100vh - 180px); margin-top: -1px;">
+                  <!-- Main Image -->
+                  <div class="gallery-image-container relative" style="max-width: calc(100vw - 300px); height: 100%;">
+                    <img class="gallery-image-1 absolute inset-0 max-w-full max-h-full m-auto transition-opacity duration-300" src="" alt="" />
+                    <img class="gallery-image-2 absolute inset-0 max-w-full max-h-full m-auto opacity-0 transition-opacity duration-300" src="" alt="" />
+                    
+                    <!-- Navigation zones on the image -->
+                    <div class="prev-zone absolute left-0 top-0 bottom-0 w-2/5 cursor-left"></div>
+                    <div class="next-zone absolute right-0 top-0 bottom-0 w-2/5 cursor-right"></div>
+                  </div>
                   
-                  <!-- Navigation zones on the image -->
-                  <div class="prev-zone absolute left-0 top-0 bottom-0 w-2/5 cursor-left"></div>
-                  <div class="next-zone absolute right-0 top-0 bottom-0 w-2/5 cursor-right"></div>
-                </div>
-                
-                <!-- Bottom controls -->
-                <div class="absolute bottom-2 left-0 right-0 flex justify-between items-center px-5 text-sm">
-                  <div class="image-counter text-[#3D3D3D]"></div>
-                  <div class="next-project cursor-pointer hover:underline">Next Project →</div>
+                  <!-- Bottom controls -->
+                  <div class="absolute bottom-2 left-0 right-0 flex justify-between items-center px-5 text-sm">
+                    <div class="image-counter text-[#3D3D3D]"></div>
+                    <div class="next-project cursor-pointer hover:underline">Next Project →</div>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   </div>
