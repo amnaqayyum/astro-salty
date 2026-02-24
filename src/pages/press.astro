@@ -57,7 +57,6 @@ function formatMonthYear(dateStr:string) {
   }
   .list-meta {
     display: flex;
-    min-width: 500px;
   }
   .list-header {
     display: flex;
@@ -70,45 +69,43 @@ function formatMonthYear(dateStr:string) {
   }
   .list-title, .row-title {
     flex: 1;
-    line-height: 29px;
   }
   .list-row {
     cursor: pointer;
   }
   .meta-col-one {
     flex-shrink: 0;
-    min-width: 270px;
-    line-height: 29px;
+    min-width: 239px;
   }
   .meta-col-two {
     flex-shrink: 0;
-    min-width: 230px;
-    line-height: 29px;
+    min-width: 219px;
   }
   .list-row {
     gap: 20px;
     display: flex;
     padding: 0 20px;
+    min-height: 30px;
   }
   .meta-col-one a, .meta-col-two a {
     text-decoration: none;
   }
   @media (min-width: 768px) {
+    .list-title, .row-title {
+      padding-left: 40px;
+    }
     .list-row + .list-row .row-title {
       margin-left: -20px;
-      padding-left: 20px;
+      padding-left: 60px;
       border-top: 1px solid #3D3D3D;
     }
   }
   @media (min-width: 768px) and (max-width: 991.98px) {
-    .list-meta {
-      min-width: 450px;
-    }
     .meta-col-one {
-      min-width: 250px;
+      min-width: 238px;
     }
     .meta-col-two {
-      min-width: 200px;
+      min-width: 169px;
     }
   }
   @media (max-width: 768px) {
@@ -120,6 +117,7 @@ function formatMonthYear(dateStr:string) {
     }
     .list-row {
       gap: 10px;
+      min-height: 60px;
       padding: 8px 20px;
       align-items: flex-start;
       border-bottom: 1px solid #3D3D3D;
@@ -132,7 +130,6 @@ function formatMonthYear(dateStr:string) {
     .list-meta {
       flex: 0 50%;
       flex-wrap: wrap;
-      min-width: auto;
     }
     .meta-col-one, .meta-col-two {
       flex: 1;

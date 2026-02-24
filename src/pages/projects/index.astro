@@ -9,12 +9,12 @@ const projects = await getAllProjects();
 ---
 
 <Layout title="Salty Architects - Projects">
-  <div class="min-h-screen pt-[61px]">
+  <div class="min-h-screen">
     <div id="projects-container">
       <!-- Projects Table -->
       <div id="projects-table" class="projects-view">
         <!-- Fixed Header -->
-        <div class=" border-t border-b border-[#3D3D3D]">
+        <div class="border-b border-[#3D3D3D]">
           <div class="grid px-5 h-[51px] items-start pt-[5px] font-normal" style="grid-template-columns: 1fr var(--col-size) var(--col-type) var(--col-year) var(--col-status) var(--col-arrow);">
             <div class="pl-0 whitespace-nowrap overflow-hidden text-ellipsis"></div>
             <div class="text-left whitespace-nowrap overflow-hidden text-ellipsis" style="width: var(--col-size);">
@@ -91,10 +91,16 @@ const projects = await getAllProjects();
   <style>
     :root {
       --col-size: 98px;
-      --col-type: 138px;
-      --col-year: 100px;
+      --col-type: 137px;
+      --col-year: 103px;
       --col-status: 158px;
       --col-arrow: 60px;
+    }
+
+    @media (min-width: 768px) and (max-width: 991.98px) {
+      :root {
+        --col-status: 109px;
+      } 
     }
     
     .projects-view {

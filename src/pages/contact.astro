@@ -89,7 +89,6 @@ const contacts: ContactInfo[] = [
   }
   .list-meta {
     display: flex;
-    min-width: 565px;
   }
   .list-header, .list-row {
     display: flex;
@@ -103,12 +102,12 @@ const contacts: ContactInfo[] = [
   }
   .meta-col-one {
     flex-shrink: 0;
-    min-width: 230px;
+    min-width: 235px;
     line-height: 33px;
   }
   .meta-col-two {
     flex-shrink: 0;
-    min-width: 335px;
+    min-width: 321px;
     line-height: 33px;
   }
   .list-row {
@@ -123,14 +122,11 @@ const contacts: ContactInfo[] = [
     }
   }
   @media (min-width: 768px) and (max-width: 991.98px) {
-    .list-meta {
-      min-width: 450px;
-    }
     .meta-col-one {
-      min-width: 200px;
+      min-width: 235px;
     }
     .meta-col-two {
-      min-width: 250px;
+      min-width: 271px;
     }
   }
   @media (max-width: 768px) {
@@ -150,7 +146,6 @@ const contacts: ContactInfo[] = [
     }
     .list-meta {
       flex-wrap: wrap;
-      min-width: auto;
     }
     .meta-col-one, .meta-col-two {
       flex: 1;

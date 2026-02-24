@@ -80,8 +80,9 @@ const canonicalURL = canonical || Astro.url.href;
         background: #E9E9E9;
       }
 
-      .nav-links a + a {
-        margin-left: 40px;
+      .nav-links {
+        display: flex;
+        margin-right: 130px;
       }
 
       body.mobile .nav-links {
@@ -92,6 +93,11 @@ const canonicalURL = canonical || Astro.url.href;
       }
       body.mobile .mobile-only {
         display: block;
+      }
+      @media (min-width: 768px) and (max-width: 991.98px) {
+        .nav-links {
+          margin-right: 80px;
+        }
       }
       @media (max-width: 767.98px) {
         header {
@@ -115,9 +121,9 @@ const canonicalURL = canonical || Astro.url.href;
       <nav class={`min-h-[62px] items-center ${isHomePage ? 'text-black justify-end' : 'justify-between'} flex flex-row mx-[20px]`}>
         {!isHomePage && <a href="/" class="tracking-[0px] text-lg">SALTY ARCHITECTS</a>}
         <div class="nav-links right leading-none">
-          <a href="/projects" class="hover:opacity-75 transition-opacity">INDEX</a>
-          <a href="/about" class="hover:opacity-75 transition-opacity">ABOUT</a>
-          <a href="/press" class="hover:opacity-75 transition-opacity">PRESS</a>
+          <a href="/projects" class="hover:opacity-75 transition-opacity mr-[44px]">INDEX</a>
+          <a href="/about" class="hover:opacity-75 transition-opacity mr-[72px]">ABOUT</a>
+          <a href="/press" class="hover:opacity-75 transition-opacity mr-[42px]">PRESS</a>
           <a href="/contact" class="hover:opacity-75 transition-opacity">CONTACT</a>
         </div>
         <div class="mobile-only">
