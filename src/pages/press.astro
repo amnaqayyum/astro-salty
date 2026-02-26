@@ -14,37 +14,35 @@ function formatMonthYear(dateStr:string) {
 ---
 
 <Layout title="Press - Salty Architects">
-  <div class="min-h-screen">
-    <div class="list-container">
-      <div class="list-header">
-        <div class="list-title"></div>
+  <div class="list-container">
+    <div class="list-header">
+      <div class="list-title"></div>
+
+      <div class="list-meta">
+        <div class="meta-col-one">
+          <TypewriterText shortText="P" fullText="PROJECT" />
+        </div>
+        <div class="meta-col-two">
+          <TypewriterText shortText="D" fullText="DATE" />
+        </div>
+      </div>
+    </div>
+
+    {pressItems.map((item) => (
+      <div class="list-row" onclick={`window.open('${item.link}', '_blank', 'noopener,noreferrer')`}>
+        <div class="row-title">{item.title}</div>
 
         <div class="list-meta">
           <div class="meta-col-one">
-            <TypewriterText shortText="P" fullText="PROJECT" />
+            {item.info}
           </div>
+
           <div class="meta-col-two">
-            <TypewriterText shortText="D" fullText="DATE" />
+            {formatMonthYear(item.date)}
           </div>
         </div>
       </div>
-
-      {pressItems.map((item) => (
-        <div class="list-row" onclick={`window.open('${item.link}', '_blank', 'noopener,noreferrer')`}>
-          <div class="row-title">{item.title}</div>
-
-          <div class="list-meta">
-            <div class="meta-col-one">
-              {item.info}
-            </div>
-
-            <div class="meta-col-two">
-              {formatMonthYear(item.date)}
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
+    ))}
   </div>
 </Layout>
 
@@ -89,6 +87,12 @@ function formatMonthYear(dateStr:string) {
   }
   .meta-col-one a, .meta-col-two a {
     text-decoration: none;
+  }
+  .row-title, .list-meta, .meta-col-one {
+    flex-shrink: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
   @media (min-width: 768px) {
     .list-title, .row-title {

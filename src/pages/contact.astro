@@ -34,51 +34,49 @@ const contacts: ContactInfo[] = [
 ---
 
 <Layout title="Contact - Salty Architects">
-  <div class="min-h-screen">
-    <div class="list-container">
-      <div class="list-header">
-        <div class="list-title"></div>
+  <div class="list-container">
+    <div class="list-header">
+      <div class="list-title"></div>
+
+      <div class="list-meta">
+        <div class="meta-col-one">
+          <TypewriterText shortText="T" fullText="TEL" />
+        </div>
+        <div class="meta-col-two">
+          <TypewriterText shortText="E" fullText="EMAIL" />
+        </div>
+      </div>
+    </div>
+
+    {contacts.map((item, index) => (
+      <div class="list-row" data-testid={`row-${index}`}>
+        <div class="row-title">{item.name}</div>
 
         <div class="list-meta">
           <div class="meta-col-one">
-            <TypewriterText shortText="T" fullText="TEL" />
+            <span>T</span>{' '}
+            {item.phone ? (
+              <a
+                href={`tel:${item.phone}`}
+                class="hover:opacity-75 transition-opacity"
+              >
+                {item.phone}
+              </a>
+            ) : ''}
           </div>
+
           <div class="meta-col-two">
-            <TypewriterText shortText="E" fullText="EMAIL" />
+            <span>E</span>{' '}
+            <a
+              href={`mailto:${item.email}`}
+              class="hover:opacity-75 transition-opacity"
+            >
+              {item.email}
+            </a>
           </div>
         </div>
       </div>
-
-      {contacts.map((item, index) => (
-        <div class="list-row" data-testid={`row-${index}`}>
-          <div class="row-title">{item.name}</div>
-
-          <div class="list-meta">
-            <div class="meta-col-one">
-              <span>T</span>{' '}
-              {item.phone ? (
-                <a
-                  href={`tel:${item.phone}`}
-                  class="hover:opacity-75 transition-opacity"
-                >
-                  {item.phone}
-                </a>
-              ) : ''}
-            </div>
-
-            <div class="meta-col-two">
-              <span>E</span>{' '}
-              <a
-                href={`mailto:${item.email}`}
-                class="hover:opacity-75 transition-opacity"
-              >
-                {item.email}
-              </a>
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
+    ))}
   </div>
 </Layout>
 
@@ -111,7 +109,7 @@ const contacts: ContactInfo[] = [
     line-height: 33px;
   }
   .list-row {
-    min-height: 200px;
+    min-height: calc((100vh/5) - 41px);
   }
   .meta-col-one a, .meta-col-two a {
     text-decoration: none;
@@ -134,7 +132,7 @@ const contacts: ContactInfo[] = [
       display: none;
     }
     .list-row {
-      min-height: 180px;
+      min-height: 150px;
       padding-top: 10px;
       align-items: flex-start;
     }

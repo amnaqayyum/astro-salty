@@ -51,20 +51,21 @@
     margin-top: 10px
   }
   .mobile-sidebar {
-    position: fixed;
     top: 61px;
-    right: -100%;
+    right: 0;
     width: 100%;
-    height: calc(100vh - 61px);
-    background: #E9E9E9;
+    z-index: 1100;
+    max-height: 0;
     display: flex;
+    position: fixed;
+    overflow: hidden;
+    background: #E9E9E9;
     flex-direction: column;
     align-items: flex-start;
-    transition: right 0.3s;
-    z-index: 1100;
+    transition: max-height 0.35s ease;
   }
   .mobile-sidebar.open {
-    right: 0;
+    max-height: 361px;
   }
   .mobile-sidebar a {
     width: 190px;
