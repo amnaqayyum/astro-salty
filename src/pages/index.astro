@@ -6,7 +6,6 @@ import { getHomeGalleryImages } from '../utils/data';
 
 const galleryImages = await getHomeGalleryImages();
 
-// Fallback to static images if no images in database
 const images = galleryImages.length > 0
   ? galleryImages.map(img => ({ url: img.image_url, isDark: img.is_dark }))
   : [
@@ -26,48 +25,104 @@ const totalImages = images.length;
 <Layout title="Salty Architects" isHomePage={true}>
 	<div class="relative h-screen w-full overflow-hidden">
 		<div id="carousel" class="relative h-full w-full">
+
 			<div class="absolute inset-0">
 				<img
 					id="carousel-image-1"
 					src={images[0]?.url || ''}
-					alt="Salty Architects Project"
 					class="absolute inset-0 w-full h-full object-cover object-top transition-opacity duration-300"
 				/>
 				<img
 					id="carousel-image-2"
 					src=""
-					alt="Salty Architects Project"
 					class="absolute inset-0 w-full h-full object-cover object-top opacity-0 transition-opacity duration-300"
 				/>
 			</div>
 
 			<div class="absolute inset-0 flex items-center justify-center text-center">
-				<h1 id="main-title" class="text-black font-brown transition-colors duration-700" style="font-size: 100px; line-height: 1.22; font-weight: 400; letter-spacing: -0.02em;">Salty Architects</h1>
+				<h1 id="main-title" class="text-black font-brown transition-colors duration-700">
+					Salty Architects
+				</h1>
 			</div>
 
-			<div
-				id="prev-zone"
-				class="absolute top-0 left-0 w-2/5 h-full cursor-left z-10"
-			></div>
+			<div id="prev-zone" class="absolute top-0 left-0 w-1/5 h-full cursor-left z-10"></div>
+			<div id="next-zone" class="absolute top-0 right-0 w-1/5 h-full cursor-right z-10"></div>
 
-			<div
-				id="next-zone"
-				class="absolute top-0 right-0 w-2/5 h-full cursor-right z-10"
-			></div>
-
-			<div id="image-counter" class="absolute bottom-[30px] left-[30px] tracking-wide transition-colors duration-700 text-lg">
-				<span id="current-image">01</span> / <span id="total-images">{String(totalImages).padStart(2, '0')}</span>
+			<div id="image-counter" class="slider-counter text-black">
+				<span id="current-image">1</span> /
+				<span id="total-images">{String(totalImages).padStart(2)}</span>
 			</div>
+
+			<div id="dots" class="dots-container"></div>
+
 		</div>
 	</div>
 
 	<style>
+		#main-title {
+			font-size: 100px;
+			line-height: 122px;
+		}
+		.slider-counter {
+			left: 20px;
+			bottom: 11px;
+			display: flex;
+			font-size: 18px;
+			font-weight: 400;
+			line-height: 22px;
+			position: absolute;
+			align-items: center;
+		}
 		.cursor-left {
 			cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>') 12 12, auto;
 		}
-
 		.cursor-right {
 			cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>') 12 12, auto;
+		}
+		@media (min-width: 768px) {
+			.dots-container {
+				display: none;
+			}
+		}
+		@media (max-width: 768px) {
+			.slider-counter, .cursor-left, .cursor-right {
+				display: none;
+			}
+			#main-title {
+				font-size: 70px;
+				line-height: 100px;
+			}
+		}
+		@media (max-width: 575.98px) {
+			#main-title {
+				font-size: 30px;
+				line-height: 50px;
+			}
+		}
+	</style>
+	<style is:global>
+		.dots-container {
+			gap: 5px;
+			left: 50%;
+			width: 100%;
+			z-index: 20;
+			bottom: 13%;
+			display: flex;
+			position: absolute;
+			transform: translateX(-50%);
+		}
+		.dot {
+			flex: 1;
+			height: 2px;
+			cursor: pointer;
+			transition: all 0.3s ease;
+			background: rgba(0, 0, 0, 0.2);
+		}
+		.dot.active {
+			background: #000;
+		}
+		.is-home .mobile-sidebar {
+			background: transparent;
 		}
 	</style>
 
@@ -83,31 +138,58 @@ const totalImages = images.length;
 		const nextZone = document.getElementById('next-zone');
 		const mainTitle = document.getElementById('main-title');
 		const imageCounter = document.getElementById('image-counter');
+		const dotsContainer = document.getElementById('dots');
 
 		function updateTextColor(isDark) {
 			if (isDark) {
-				mainTitle.classList.remove('text-black');
-				mainTitle.classList.add('text-white');
+				mainTitle.classList.replace('text-black', 'text-white');
 				imageCounter.classList.add('text-white');
 			} else {
-				mainTitle.classList.remove('text-white');
-				mainTitle.classList.add('text-black');
+				mainTitle.classList.replace('text-white', 'text-black');
 				imageCounter.classList.remove('text-white');
 			}
 		}
 
-		function updateImage() {
-			const nextImage = activeImage === 1 ? image2 : image1;
-			const currentImage = activeImage === 1 ? image1 : image2;
+		function updateDots() {
+			const dots = document.querySelectorAll('.dot');
+			dots.forEach((dot, i) => {
+				dot.classList.toggle('active', i === currentIndex);
+			});
+		}
 
-			nextImage.src = images[currentIndex].url;
-			currentImageSpan.textContent = String(currentIndex + 1).padStart(2, '0');
+		function renderDots() {
+			dotsContainer.innerHTML = '';
+
+			images.forEach((_, i) => {
+				const dot = document.createElement('div');
+				dot.classList.add('dot');
+
+				if (i === currentIndex) dot.classList.add('active');
+
+				dot.addEventListener('click', () => {
+				currentIndex = i;
+				updateImage();
+				resetAutoPlay();
+				});
+
+				dotsContainer.appendChild(dot);
+			});
+		}
+
+		function updateImage() {
+			const nextImg = activeImage === 1 ? image2 : image1;
+			const currentImg = activeImage === 1 ? image1 : image2;
+
+			nextImg.src = images[currentIndex].url;
+			currentImageSpan.textContent = String(currentIndex + 1).padStart(2);
 			updateTextColor(images[currentIndex].isDark);
 
-			nextImage.classList.remove('opacity-0');
-			currentImage.classList.add('opacity-0');
+			nextImg.classList.remove('opacity-0');
+			currentImg.classList.add('opacity-0');
 
 			activeImage = activeImage === 1 ? 2 : 1;
+
+			updateDots();
 		}
 
 		function nextImage() {
@@ -123,37 +205,39 @@ const totalImages = images.length;
 		}
 
 		function startAutoPlay() {
+			stopAutoPlay();
+
 			autoPlayInterval = setInterval(() => {
-				currentIndex = (currentIndex + 1) % images.length;
-				updateImage();
-			}, 7000);
+				nextImage(false);
+			}, 3000);
+		}
+
+		function stopAutoPlay() {
+			if (autoPlayInterval) {
+				clearInterval(autoPlayInterval);
+			}
 		}
 
 		function resetAutoPlay() {
-			clearInterval(autoPlayInterval);
 			startAutoPlay();
 		}
 
-		// Initialize
 		updateTextColor(images[0]?.isDark || false);
+		renderDots();
+
 		images.forEach(img => {
 			const preload = new Image();
 			preload.src = img.url;
 		});
+
 		startAutoPlay();
 
-		prevZone.addEventListener('click', (e) => {
-			e.stopPropagation();
-			prevImage();
-		});
-		nextZone.addEventListener('click', (e) => {
-			e.stopPropagation();
-			nextImage();
-		});
+		prevZone.addEventListener('click', prevImage);
+		nextZone.addEventListener('click', nextImage);
 
 		document.addEventListener('keydown', (e) => {
 			if (e.key === 'ArrowLeft') prevImage();
-			else if (e.key === 'ArrowRight') nextImage();
+			if (e.key === 'ArrowRight') nextImage();
 		});
 
 		const carousel = document.getElementById('carousel');

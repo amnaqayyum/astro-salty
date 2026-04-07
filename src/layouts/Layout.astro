@@ -11,6 +11,8 @@ export interface Props {
 
 const { title, isHomePage = false, description = "Salty Architects - Architecture Studio", ogImage, canonical } = Astro.props;
 const canonicalURL = canonical || Astro.url.href;
+const path = Astro.url.pathname;
+const page = path === '/' ? 'home' : path.replace(/\//g, '');
 ---
 
 <!doctype html>
@@ -109,7 +111,7 @@ const canonicalURL = canonical || Astro.url.href;
       }
     </style>
   </head>
-  <body class="min-h-screen bg-[#E9E9E9] text-[#3D3D3D] text-lg">
+  <body class={`min-h-screen bg-[#E9E9E9] text-[#3D3D3D] text-lg is-${page}`}>
     <script is:inline>
       function updateMobileClass() {
         document.body.classList.toggle('mobile', window.innerWidth < 768);
@@ -118,7 +120,7 @@ const canonicalURL = canonical || Astro.url.href;
       window.addEventListener('resize', updateMobileClass);
     </script>
     <header class={`${isHomePage ? 'absolute top-0 left-0 right-0 z-50' : 'border-b border-[#3D3D3D]'}` }>
-      <nav class={`min-h-[62px] items-center ${isHomePage ? 'text-black justify-end' : 'justify-between'} flex flex-row mx-[20px]`}>
+      <nav class={`min-h-[62px] items-center ${isHomePage ? 'justify-end' : 'justify-between'} flex flex-row mx-[20px]`}>
         {!isHomePage && <a href="/" class="tracking-[0px] text-lg">SALTY ARCHITECTS</a>}
         <div class="nav-links right leading-none">
           <a href="/projects" class="hover:opacity-75 transition-opacity mr-[44px]">INDEX</a>
