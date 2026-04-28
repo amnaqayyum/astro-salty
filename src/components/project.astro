@@ -1,0 +1,770 @@
+---
+export const prerender = true;
+
+import TypewriterText from './TypewriterText.astro';
+import { getAllProjects } from '../utils/data';
+
+const projects = await getAllProjects();
+---
+
+    <div id="projects-container">
+        <!-- Projects Table -->
+        <div id="projects-table" class="projects-view">
+        <!-- Fixed Header -->
+
+
+        <div class="list-container">
+          <div class="list-header">
+            <div class="list-title"></div>
+            <div class="list-meta">
+              <div class="meta-col meta-one">
+                <TypewriterText shortText="S" fullText="SIZE" />
+              </div>
+              <div class="meta-col meta-two">
+                <TypewriterText shortText="T" fullText="TYPE" />
+              </div>
+              <div class="meta-col meta-three">
+                <TypewriterText shortText="Y" fullText="YEAR" />
+              </div>
+              <div class="meta-col meta-four">
+                <TypewriterText shortText="Y" fullText="YEAR" />
+              </div>
+              <div class="meta-col meta-five"></div>
+            </div>
+          </div>
+
+          <div class="project-wrapper overflow-y-auto">
+            {projects.map((project) => (
+              <div class="list-row project-row" data-slug={project.slug} data-project={JSON.stringify(project)}>
+                <div class="row-title">{project.title}</div>
+
+                <div class="list-meta">
+                  <div class="meta-col meta-one">
+                    {project.metadata.info}
+                  </div>
+
+                  <div class="meta-col meta-two">
+                    {project.metadata.category}
+                  </div>
+
+                  <div class="meta-col meta-three">
+                    {project.metadata.year}
+                  </div>
+
+                  <div class="meta-col meta-four">
+                    {project.metadata.status}
+                  </div>
+
+                  <div class="meta-col meta-five flex items-center justify-end">
+                    <img src="/assets/icons/project-arrow.svg" alt="" class="project-arrow" />
+                    <div class="project-close hidden cursor-pointer">
+                      <img src="/assets/icons/project-x.svg" alt="" class="icon-close" />
+                      <img src="/assets/icons/project-arrow.svg" alt="" class="project-arrow" />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Expanded Content -->
+                <div class="project-content hidden">
+                  <div class="project-img-wrapper relative w-full flex flex-col justify-center" style="height: calc(100vh - 173px); margin-top: -1px;">
+                    <!-- Main Image -->
+                    <div class="gallery-image-container relative" style="max-width: 100vw; height: 100%;">
+                      <img class="gallery-image-1 absolute inset-0 max-w-full max-h-full m-auto transition-opacity duration-300" src="" alt="" />
+                      <img class="gallery-image-2 absolute inset-0 max-w-full max-h-full m-auto opacity-0 transition-opacity duration-300" src="" alt="" />
+                      
+                      <!-- Navigation zones on the image -->
+                      <div class="prev-zone absolute left-0 top-0 bottom-0 w-2/5 cursor-left"></div>
+                      <div class="next-zone absolute right-0 top-0 bottom-0 w-2/5 cursor-right"></div>
+                    </div>
+                    
+                    <!-- Bottom controls -->
+                    <div class="project-controls absolute bottom-2 left-0 right-0 flex justify-between items-center text-sm">
+                      <div class="image-counter text-[#3D3D3D]"></div>
+                      <div class="next-project cursor-pointer hover:underline">Next Project →</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+
+        </div>
+        
+    </div>
+
+  <!-- Hover Image Container -->
+  <div id="hover-image-container" class="fixed pointer-events-none z-40 hidden">
+    <img id="hover-image" src="" alt="" class="max-w-full h-auto" />
+  </div>
+ 
+  <style>
+    :root {
+      --col-size: 98px;
+      --col-type: 137px;
+      --col-year: 103px;
+      --col-status: 158px;
+      --col-arrow: 60px;
+    }
+
+    .list-container {
+      color: #3D3D3D;
+    }
+    .list-meta {
+      display: flex;
+    }
+    .list-header {
+      display: flex;
+      padding: 0 20px;
+      min-height: 52px;
+      border-bottom: 1px solid #3D3D3D;
+    }
+    .list-header .meta-col {
+      flex-shrink: 0;
+      line-height: 33px;
+    }
+    .list-title, .row-title {
+      flex: 1;
+    }
+    .list-row {
+      cursor: pointer;
+    }
+    .meta-one {
+      width: var(--col-size);
+    }
+    .meta-two {
+      width: var(--col-type);
+    }
+    .meta-three {
+      width: var(--col-year);
+    }
+    .meta-four {
+      width: var(--col-status);
+    }
+    .meta-five {
+      width: var(--col-arrow);
+    }
+    .list-row {
+      display: flex;
+      padding: 0 20px;
+      flex-wrap: wrap;
+      min-height: 30px;
+      position: relative;
+      border-bottom: 1px solid #3D3D3D;
+    }
+    .meta-col a, .meta-col a {
+      text-decoration: none;
+    }
+    .row-title, .list-meta, .meta-col {
+      flex-shrink: 0;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    .project-wrapper {
+      height: calc(100vh - 115px);
+    }
+
+    @media (min-width: 768px) and (max-width: 991.98px) {
+      :root {
+        --col-status: 109px;
+      } 
+    }
+    
+    .projects-view {
+      transition: opacity 0.3s ease-in-out;
+    }
+    
+    .project-detail-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 40px;
+      margin-top: 20px;
+    }
+    
+    .project-images {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    
+    .project-image {
+      width: 100%;
+      height: auto;
+    }
+    
+    .project-title {
+      font-size: 32px;
+      font-weight: 300;
+      margin-bottom: 30px;
+    }
+    
+    .project-metadata {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      font-size: 14px;
+    }
+    
+    .label {
+      font-weight: 500;
+    }
+
+    /* Hover state styles */
+    .project-row {
+      transition: opacity 0.2s ease-in-out;
+    }
+    
+    .project-row.dimmed {
+      opacity: 0.2;
+    }
+    
+    .project-row:hover .grid {
+      border-bottom: 1px solid rgba(61, 61, 61, 0.2);
+    }
+    
+    /* Expanded row styles */
+    .project-row.expanded {
+      height: calc(100vh - 145px);
+      transition: height 0.3s ease-out;
+    }
+    
+    .project-row.expanded .grid {
+      border-bottom: 1px solid transparent;
+    }
+    
+    .project-row.next-project-preview {
+      opacity: 0.2;
+    }
+    
+    .project-row.next-project-preview .grid {
+      border-top: 1px solid #3D3D3D;
+    }
+    
+    .project-row.expanded .project-content {
+      width: 100%;
+      display: block;
+    }
+    
+    .project-row.expanded .project-arrow {
+      display: none;
+    }
+    
+    .project-row.expanded .project-close {
+      display: block;
+    }
+    
+    #hover-image-container {
+      opacity: 0;
+      left: 28%;
+      max-width: calc(100vw - 482px);
+      transition: opacity 0.15s ease-in-out;
+    }
+    
+    #hover-image-container.show {
+      opacity: 1;
+    }
+    
+    .gallery-image-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: calc(100vh - 120px);
+      width: 100%;
+    }
+    
+    /* Cursor styles from homepage */
+    .cursor-left {
+      cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>') 12 12, auto;
+    }
+    
+    .cursor-right {
+      cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>') 12 12, auto;
+    }
+
+    @media (max-width: 768px) {
+      .project-wrapper {
+        height: calc(100vh - 62px);
+      }
+      .list-container {
+        border: none;
+      }
+      .list-header, .next-project, .list-meta .meta-col, .project-row.expanded .project-close .icon-close, #hover-image-container {
+        display: none;
+      }
+      .project-row.expanded .project-close .project-arrow {
+        display: block;
+        transform: rotate(90deg);
+      }
+      .list-row {
+        min-height: 0px;
+        padding: 8px 20px;
+        align-items: center;
+        border-bottom: 1px solid #3D3D3D;
+      }
+      .row-title {
+        flex: 0 50%;
+        font-size: 16px;
+        line-height: normal;
+      }
+      .project-row.expanded .meta-col {
+        display: flex !important;
+      }
+      .project-row.list-row.expanded {
+        align-items: flex-start;
+      }
+      .list-meta {
+        flex: 0 50%;
+        font-size: 16px;
+        line-height: normal;
+        padding-left: 1.5rem;
+        flex-direction: column;
+        justify-content: flex-end;
+      }
+      .list-meta .meta-five {
+        top: 11px;
+        width: 100%;
+        right: 20px;
+        display: flex;
+        position: absolute;
+      }
+      .project-content {
+        margin-top: 33px;
+      }
+      .project-row.expanded {
+        height: calc(100vh - 100px);
+      }
+      .project-content .project-img-wrapper {
+        height: calc(100vh - 219px) !important;
+      }
+      .project-controls {
+        bottom: 0;
+        line-height: 50px;
+        position: relative;
+      }
+    }
+  </style>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const projectRows = document.querySelectorAll('.project-row');
+      const hoverImageContainer = document.getElementById('hover-image-container');
+      const hoverImage = document.getElementById('hover-image');
+      const scrollContainer = document.querySelector('.overflow-y-auto');
+      
+      let currentHoverTimeout = null;
+      let expandedProjectIndex = null;
+      let currentImageIndex = 0;
+      let allProjects = [];
+      let activeGalleryImage = 1;
+      
+      // Initialize projects array
+      projectRows.forEach((row, index) => {
+        const projectData = JSON.parse(row.dataset.project);
+        allProjects.push({ data: projectData, element: row, index });
+      });
+      
+      // Helper functions
+      function resetHoverStates() {
+        projectRows.forEach(row => row.classList.remove('dimmed'));
+        hideHoverImage();
+      }
+      
+      function hideHoverImage() {
+        hoverImageContainer.classList.remove('show');
+        if (currentHoverTimeout) {
+          clearTimeout(currentHoverTimeout);
+        }
+        currentHoverTimeout = setTimeout(() => {
+          hoverImageContainer.classList.add('hidden');
+          hoverImage.src = '';
+          hoverImage.onload = null;
+          hoverImage.onerror = null;
+        }, 150);
+      }
+      
+      function showHoverImage(projectData, rowElement) {
+        if (!projectData.images || projectData.images.length === 0) return;
+
+        // Cancel previous timeout
+        if (currentHoverTimeout) {
+          clearTimeout(currentHoverTimeout);
+          currentHoverTimeout = null;
+        }
+
+        const localImagePath = `/data/projects/${projectData.slug}/image1.jpg`;
+        const externalImage = projectData.images[0]; 
+
+        // Hide before loading new image
+        hoverImageContainer.classList.remove('show');
+        hoverImageContainer.classList.add('hidden');
+        hoverImageContainer.style.visibility = '';
+
+        // Create a new image instance (preload)
+        const img = new Image();
+        let resolved = false;
+
+        img.onload = () => {
+          if (resolved) return;
+          resolved = true;
+
+          // Constrain image height to 40% of viewport
+          const maxHeight = Math.floor(window.innerHeight * 0.6);
+          hoverImage.style.maxHeight = `${maxHeight}px`;
+          hoverImage.style.width = 'auto';
+
+          // Set src on the visible img tag
+          hoverImage.src = img.src;
+
+          // Place offscreen but in DOM so browser can size it
+          hoverImageContainer.style.top = '-9999px'; 
+          hoverImageContainer.style.visibility = 'hidden';
+          hoverImageContainer.classList.remove('hidden');
+
+          // Double rAF — first applies styles, second measures after reflow
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              const rowRect = rowElement.getBoundingClientRect();
+              const containerHeight = hoverImageContainer.getBoundingClientRect().height;
+              const spaceAbove = rowRect.top;
+              const spaceBelow = window.innerHeight - rowRect.bottom;
+
+              if (spaceAbove >= containerHeight) {
+                // Enough room above
+                hoverImageContainer.style.top = `${rowRect.top - containerHeight}px`;
+              } else {
+                // Fall back to below
+                hoverImageContainer.style.top = `${rowRect.bottom}px`;
+              }
+
+              // Reveal with fade
+              hoverImageContainer.style.visibility = '';
+              hoverImageContainer.classList.add('show');
+            });
+          });
+        };
+
+        img.onerror = () => {
+          if (resolved) return;
+
+          if (externalImage && externalImage.startsWith('http')) {
+            img.src = externalImage;
+          }
+        };
+
+        // Start loading
+        img.src = localImagePath;
+      }
+      
+      // Project Management Functions
+      function setExpandedProject(projectIndex) {
+        if (expandedProjectIndex === projectIndex) return; // Already expanded
+        
+        // Close current project if any
+        if (expandedProjectIndex !== null) {
+          closeExpandedProject();
+        }
+        
+        // Expand new project
+        expandProject(projectIndex);
+      }
+      
+      function expandProject(projectIndex) {
+        const project = allProjects[projectIndex];
+        const projectData = project.data;
+        const rowElement = project.element;
+        
+        expandedProjectIndex = projectIndex;
+        currentImageIndex = 0;
+        
+        // Hide hover states
+        resetHoverStates();
+        
+        // Lock scrolling
+        scrollContainer.style.overflow = 'hidden';
+        
+        // Expand the row in place
+        rowElement.classList.add('expanded');
+        
+        // Show next project preview
+        const nextProjectIndex = (projectIndex + 1) % allProjects.length;
+        const nextProject = allProjects[nextProjectIndex];
+        nextProject.element.classList.add('next-project-preview');
+        
+        // Calculate scroll position relative to scroll container
+        const headerHeight = 0; // Height of sticky header (SIZE, TYPE, YEAR, STATUS)
+        const containerRect = scrollContainer.getBoundingClientRect();
+        const rowRect = rowElement.getBoundingClientRect();
+        const rowTopInContainer = rowRect.top - containerRect.top + scrollContainer.scrollTop;
+        const targetScrollTop = Math.max(0, rowTopInContainer - headerHeight);
+        
+        // Smooth scroll animation
+        animateScrollTo(targetScrollTop);
+        
+        // Load first image
+        loadGalleryImage(rowElement);
+        
+        // Update URL
+        window.history.pushState({ slug: projectData.slug }, '', `/projects/${projectData.slug}`);
+      }
+      
+      function closeExpandedProject() {
+        if (expandedProjectIndex === null) return;
+        
+        const project = allProjects[expandedProjectIndex];
+        const rowElement = project.element;
+        
+        rowElement.classList.remove('expanded');
+        
+        // Remove next project preview
+        const nextProjectIndex = (expandedProjectIndex + 1) % allProjects.length;
+        const nextProject = allProjects[nextProjectIndex];
+        nextProject.element.classList.remove('next-project-preview');
+        
+        // Unlock scrolling
+        scrollContainer.style.overflow = 'auto';
+        
+        // Reset images
+        resetProjectImages(rowElement);
+        
+        // Reset state
+        expandedProjectIndex = null;
+        currentImageIndex = 0;
+        activeGalleryImage = 1;
+        
+        // Reset URL
+        window.history.pushState({}, '', '/projects');
+      }
+      
+      function transitionToProject(toProjectIndex) {
+        if (expandedProjectIndex === toProjectIndex) return;
+        
+        // Smooth transition: close current and open new simultaneously
+        if (expandedProjectIndex !== null) {
+          const currentProject = allProjects[expandedProjectIndex];
+          currentProject.element.classList.remove('expanded');
+          resetProjectImages(currentProject.element);
+          
+          // Remove previous next project preview
+          const prevNextProjectIndex = (expandedProjectIndex + 1) % allProjects.length;
+          const prevNextProject = allProjects[prevNextProjectIndex];
+          prevNextProject.element.classList.remove('next-project-preview');
+        }
+        
+        // Immediately expand new project
+        expandProject(toProjectIndex);
+      }
+      
+      function animateScrollTo(targetScrollTop) {
+        const startScrollTop = scrollContainer.scrollTop;
+        const scrollDistance = targetScrollTop - startScrollTop;
+        const duration = 400;
+        let startTime = null;
+        
+        function animateScroll(currentTime) {
+          if (startTime === null) startTime = currentTime;
+          const timeElapsed = currentTime - startTime;
+          const progress = Math.min(timeElapsed / duration, 1);
+          
+          // Easing function (ease-out)
+          const ease = 1 - Math.pow(1 - progress, 3);
+          
+          const currentScrollPosition = startScrollTop + (scrollDistance * ease);
+          scrollContainer.scrollTop = currentScrollPosition;
+          
+          if (progress < 1) {
+            requestAnimationFrame(animateScroll);
+          }
+        }
+        
+        requestAnimationFrame(animateScroll);
+      }
+      
+      function resetProjectImages(rowElement) {
+        const galleryImage1 = rowElement.querySelector('.gallery-image-1');
+        const galleryImage2 = rowElement.querySelector('.gallery-image-2');
+        if (galleryImage1) galleryImage1.src = '';
+        if (galleryImage2) galleryImage2.src = '';
+        if (galleryImage1) galleryImage1.classList.remove('opacity-0');
+        if (galleryImage2) galleryImage2.classList.add('opacity-0');
+      }
+      
+      function loadGalleryImage(rowElement) {
+        if (expandedProjectIndex === null) return;
+        
+        const projectData = allProjects[expandedProjectIndex].data;
+        if (!projectData.images || projectData.images.length === 0) return;
+        
+        const nextImage = activeGalleryImage === 1 ? rowElement.querySelector('.gallery-image-2') : rowElement.querySelector('.gallery-image-1');
+        const currentImage = activeGalleryImage === 1 ? rowElement.querySelector('.gallery-image-1') : rowElement.querySelector('.gallery-image-2');
+        const imageCounter = rowElement.querySelector('.image-counter');
+        
+        // Update counter
+        imageCounter.textContent = `${currentImageIndex + 1}/${projectData.images.length}`;
+        
+        // Clear handlers
+        nextImage.onload = null;
+        nextImage.onerror = null;
+        
+        // Try local image first
+        const localImagePath = `/data/projects/${projectData.slug}/image${currentImageIndex + 1}.jpg`;
+        const externalImage = projectData.images[currentImageIndex];
+        
+        let imageLoaded = false;
+        
+        nextImage.onload = function() {
+          if (!imageLoaded) {
+            imageLoaded = true;
+            // Crossfade
+            nextImage.classList.remove('opacity-0');
+            currentImage.classList.add('opacity-0');
+            // Switch active image
+            activeGalleryImage = activeGalleryImage === 1 ? 2 : 1;
+          }
+        };
+        
+        nextImage.onerror = function() {
+          if (!imageLoaded && externalImage && externalImage.startsWith('http')) {
+            nextImage.src = externalImage;
+          }
+        };
+        
+        // Set new image
+        nextImage.src = localImagePath;
+      }
+      
+      function navigateGallery(direction) {
+        if (expandedProjectIndex === null) return;
+        
+        const projectData = allProjects[expandedProjectIndex].data;
+        if (!projectData.images || projectData.images.length === 0) return;
+        
+        if (direction === 'next') {
+          currentImageIndex = (currentImageIndex + 1) % projectData.images.length;
+        } else {
+          currentImageIndex = (currentImageIndex - 1 + projectData.images.length) % projectData.images.length;
+        }
+        
+        const rowElement = allProjects[expandedProjectIndex].element;
+        loadGalleryImage(rowElement);
+      }
+      
+      function goToNextProject() {
+        if (expandedProjectIndex === null) return;
+        
+        const nextIndex = (expandedProjectIndex + 1) % allProjects.length;
+        transitionToProject(nextIndex);
+      }
+      
+      
+      // Event listeners
+      projectRows.forEach((row, index) => {
+        row.addEventListener('mouseenter', function() {
+          // Don't show hover if expanded
+          if (expandedProjectIndex !== null) return;
+          
+          // Dim other rows
+          projectRows.forEach(otherRow => {
+            if (otherRow !== row) {
+              otherRow.classList.add('dimmed');
+            }
+          });
+          
+          // Show hover image
+          const projectData = JSON.parse(this.dataset.project);
+          showHoverImage(projectData, this);
+        });
+        
+        row.addEventListener('mouseleave', function() {
+          if (expandedProjectIndex === null) {
+            resetHoverStates();
+          }
+        });
+        
+        row.addEventListener('click', function() {
+          const projectData = JSON.parse(this.dataset.project);
+          // Only open if project has images
+          if (projectData.images && projectData.images.length > 0) {
+            setExpandedProject(index);
+          }
+        });
+        
+        // Close button
+        const closeButton = row.querySelector('.project-close');
+        if (closeButton) {
+          closeButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            closeExpandedProject();
+          });
+        }
+        
+        // Navigation zones
+        const prevZone = row.querySelector('.prev-zone');
+        const nextZone = row.querySelector('.next-zone');
+        
+        if (prevZone) {
+          prevZone.addEventListener('click', (e) => {
+            e.stopPropagation();
+            navigateGallery('prev');
+          });
+        }
+        
+        if (nextZone) {
+          nextZone.addEventListener('click', (e) => {
+            e.stopPropagation();
+            navigateGallery('next');
+          });
+        }
+        
+        // Next project button
+        const nextProjectButton = row.querySelector('.next-project');
+        if (nextProjectButton) {
+          nextProjectButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            goToNextProject();
+          });
+        }
+      });
+      
+      // Keyboard navigation
+      document.addEventListener('keydown', (e) => {
+        if (expandedProjectIndex === null) return;
+        
+        if (e.key === 'ArrowLeft') {
+          navigateGallery('prev');
+        } else if (e.key === 'ArrowRight') {
+          navigateGallery('next');
+        } else if (e.key === 'Escape') {
+          closeExpandedProject();
+        }
+      });
+      
+      // Handle browser back button
+      window.addEventListener('popstate', (e) => {
+        if (e.state && e.state.slug) {
+          // Find project by slug and open it
+          const projectIndex = allProjects.findIndex(p => p.data.slug === e.state.slug);
+          if (projectIndex !== -1) {
+            setExpandedProject(projectIndex);
+          }
+        } else {
+          closeExpandedProject();
+        }
+      });
+      
+      // Check if we should open a project on load
+      const pathMatch = window.location.pathname.match(/^\/projects\/([^/]+)$/);
+      if (pathMatch) {
+        const slug = pathMatch[1];
+        const projectIndex = allProjects.findIndex(p => p.data.slug === slug);
+        if (projectIndex !== -1) {
+          setTimeout(() => {
+            setExpandedProject(projectIndex);
+          }, 100);
+        }
+      }
+      
+      // Event listeners
+      scrollContainer.addEventListener('scroll', resetHoverStates);
+    });
+  </script>

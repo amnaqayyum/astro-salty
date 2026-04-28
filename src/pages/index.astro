@@ -3,6 +3,7 @@ export const prerender = true;
 
 import Layout from '../layouts/Layout.astro';
 import { getHomeGalleryImages } from '../utils/data';
+import ProjectIndex from '../components/project.astro';
 
 const galleryImages = await getHomeGalleryImages();
 
@@ -58,10 +59,13 @@ const totalImages = images.length;
 		</div>
 	</div>
 
+	<ProjectIndex />
+
 	<style>
 		#main-title {
 			font-size: 100px;
 			line-height: 122px;
+			transition: opacity 0.5s ease;
 		}
 		.slider-counter {
 			left: 20px;
@@ -101,6 +105,16 @@ const totalImages = images.length;
 		}
 	</style>
 	<style is:global>
+		@media (min-width: 768px) {
+			#projects-container {
+				display: none;
+			}
+		}
+		@media (max-width: 768px) {
+			.project-wrapper {
+				height: auto !important;
+			}
+		}
 		.dots-container {
 			gap: 5px;
 			left: 50%;
@@ -123,6 +137,20 @@ const totalImages = images.length;
 		}
 		.is-home .mobile-sidebar {
 			background: transparent;
+		}
+		.is-home .mobile-sidebar.open {
+			border-style: solid;
+			border-color: #3D3D3D;
+			border-width: 1px 0px 1px 0px;
+		}
+		.is-home #main-title {
+			opacity: 1;
+		}
+		.is-home:has(.mobile-sidebar.open) #main-title {
+			opacity: 0;
+		}
+		.is-home .project-body {
+			height: auto;
 		}
 	</style>
 
