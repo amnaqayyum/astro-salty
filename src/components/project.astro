@@ -503,9 +503,29 @@ const projects = await getAllProjects();
         
         // Load first image
         loadGalleryImage(rowElement);
+
+        preloadProjectImages(allProjects[projectIndex].data);
         
         // Update URL
         window.history.pushState({ slug: projectData.slug }, '', `/projects/${projectData.slug}`);
+      }
+
+      function preloadProjectImages(projectData) {
+        if (!projectData.images || projectData.images.length === 0) return;
+        
+        projectData.images.forEach((externalUrl, index) => {
+          const img = new Image();
+          const localPath = `/data/projects/${projectData.slug}/image${index + 1}.jpg`;
+          
+          img.onerror = () => {
+            if (externalUrl && externalUrl.startsWith('http')) {
+              const fallback = new Image();
+              fallback.src = externalUrl;
+            }
+          };
+          
+          img.src = localPath;
+        });
       }
       
       function closeExpandedProject() {
@@ -599,9 +619,6 @@ const projects = await getAllProjects();
         const currentImage = activeGalleryImage === 1 ? rowElement.querySelector('.gallery-image-1') : rowElement.querySelector('.gallery-image-2');
         const imageCounter = rowElement.querySelector('.image-counter');
         
-        // Update counter
-        imageCounter.textContent = `${currentImageIndex + 1}/${projectData.images.length}`;
-        
         // Clear handlers
         nextImage.onload = null;
         nextImage.onerror = null;
@@ -620,6 +637,8 @@ const projects = await getAllProjects();
             currentImage.classList.add('opacity-0');
             // Switch active image
             activeGalleryImage = activeGalleryImage === 1 ? 2 : 1;
+            // Update counter
+           imageCounter.textContent = `${currentImageIndex + 1}/${projectData.images.length}`; 
           }
         };
         
@@ -647,6 +666,7 @@ const projects = await getAllProjects();
         
         const rowElement = allProjects[expandedProjectIndex].element;
         loadGalleryImage(rowElement);
+        preloadProjectImages(allProjects[expandedProjectIndex].data);
       }
       
       function goToNextProject() {
