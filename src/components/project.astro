@@ -345,446 +345,432 @@ const projects = await getAllProjects();
     }
   </style>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const projectRows = document.querySelectorAll('.project-row');
-      const hoverImageContainer = document.getElementById('hover-image-container');
-      const hoverImage = document.getElementById('hover-image');
-      const scrollContainer = document.querySelector('.overflow-y-auto');
-      
-      let currentHoverTimeout = null;
-      let expandedProjectIndex = null;
-      let currentImageIndex = 0;
-      let allProjects = [];
-      let activeGalleryImage = 1;
-      
-      // Initialize projects array
-      projectRows.forEach((row, index) => {
-        const projectData = JSON.parse(row.dataset.project);
-        allProjects.push({ data: projectData, element: row, index });
-      });
-      
-      // Helper functions
-      function resetHoverStates() {
-        projectRows.forEach(row => row.classList.remove('dimmed'));
-        hideHoverImage();
-      }
-      
-      function hideHoverImage() {
-        hoverImageContainer.classList.remove('show');
-        if (currentHoverTimeout) {
-          clearTimeout(currentHoverTimeout);
-        }
-        currentHoverTimeout = setTimeout(() => {
-          hoverImageContainer.classList.add('hidden');
-          hoverImage.src = '';
-          hoverImage.onload = null;
-          hoverImage.onerror = null;
-        }, 150);
-      }
-      
-      function showHoverImage(projectData, rowElement) {
-        if (!projectData.images || projectData.images.length === 0) return;
-
-        // Cancel previous timeout
-        if (currentHoverTimeout) {
-          clearTimeout(currentHoverTimeout);
-          currentHoverTimeout = null;
-        }
-
-        const localImagePath = `/data/projects/${projectData.slug}/image1.jpg`;
-        const externalImage = projectData.images[0]; 
-
-        // Hide before loading new image
-        hoverImageContainer.classList.remove('show');
-        hoverImageContainer.classList.add('hidden');
-        hoverImageContainer.style.visibility = '';
-
-        // Create a new image instance (preload)
-        const img = new Image();
-        let resolved = false;
-
-        img.onload = () => {
-          if (resolved) return;
-          resolved = true;
-
-          // Constrain image height to 40% of viewport
-          const maxHeight = Math.floor(window.innerHeight * 0.6);
-          hoverImage.style.maxHeight = `${maxHeight}px`;
-          hoverImage.style.width = 'auto';
-
-          // Set src on the visible img tag
-          hoverImage.src = img.src;
-
-          // Place offscreen but in DOM so browser can size it
-          hoverImageContainer.style.top = '-9999px'; 
-          hoverImageContainer.style.visibility = 'hidden';
-          hoverImageContainer.classList.remove('hidden');
-
-          // Double rAF — first applies styles, second measures after reflow
-          requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-              const rowRect = rowElement.getBoundingClientRect();
-              const containerHeight = hoverImageContainer.getBoundingClientRect().height;
-              const spaceAbove = rowRect.top;
-              const spaceBelow = window.innerHeight - rowRect.bottom;
-
-              if (spaceAbove >= containerHeight) {
-                // Enough room above
-                hoverImageContainer.style.top = `${rowRect.top - containerHeight}px`;
-              } else {
-                // Fall back to below
-                hoverImageContainer.style.top = `${rowRect.bottom}px`;
-              }
-
-              // Reveal with fade
-              hoverImageContainer.style.visibility = '';
-              hoverImageContainer.classList.add('show');
-            });
-          });
-        };
-
-        img.onerror = () => {
-          if (resolved) return;
-
-          if (externalImage && externalImage.startsWith('http')) {
-            img.src = externalImage;
-          }
-        };
-
-        // Start loading
-        img.src = localImagePath;
-      }
-      
-      // Project Management Functions
-      function setExpandedProject(projectIndex) {
-        if (expandedProjectIndex === projectIndex) return; // Already expanded
-        
-        // Close current project if any
-        if (expandedProjectIndex !== null) {
-          closeExpandedProject();
-        }
-        
-        // Expand new project
-        expandProject(projectIndex);
-      }
-      
-      function expandProject(projectIndex) {
-        const project = allProjects[projectIndex];
-        const projectData = project.data;
-        const rowElement = project.element;
-        
-        expandedProjectIndex = projectIndex;
-        currentImageIndex = 0;
-        
-        // Hide hover states
-        resetHoverStates();
-        
-        // Lock scrolling
-        scrollContainer.style.overflow = 'hidden';
-        
-        // Expand the row in place
-        rowElement.classList.add('expanded');
-        
-        // Show next project preview
-        const nextProjectIndex = (projectIndex + 1) % allProjects.length;
-        const nextProject = allProjects[nextProjectIndex];
-        nextProject.element.classList.add('next-project-preview');
-        
-        // Calculate scroll position relative to scroll container
-        const headerHeight = 0; // Height of sticky header (SIZE, TYPE, YEAR, STATUS)
-        const containerRect = scrollContainer.getBoundingClientRect();
-        const rowRect = rowElement.getBoundingClientRect();
-        const rowTopInContainer = rowRect.top - containerRect.top + scrollContainer.scrollTop;
-        const targetScrollTop = Math.max(0, rowTopInContainer - headerHeight);
-        
-        // Smooth scroll animation
-        animateScrollTo(targetScrollTop);
-        
-        // Load first image
-        loadGalleryImage(rowElement);
-
-        preloadProjectImages(allProjects[projectIndex].data);
-        
-        // Update URL
-        window.history.pushState({ slug: projectData.slug }, '', `/projects/${projectData.slug}`);
-      }
-
-      function preloadProjectImages(projectData) {
-        if (!projectData.images || projectData.images.length === 0) return;
-        
-        projectData.images.forEach((externalUrl, index) => {
-          const img = new Image();
-          const localPath = `/data/projects/${projectData.slug}/image${index + 1}.jpg`;
-          
-          img.onerror = () => {
-            if (externalUrl && externalUrl.startsWith('http')) {
-              const fallback = new Image();
-              fallback.src = externalUrl;
-            }
-          };
-          
-          img.src = localPath;
-        });
-      }
-      
-      function closeExpandedProject() {
-        if (expandedProjectIndex === null) return;
-        
-        const project = allProjects[expandedProjectIndex];
-        const rowElement = project.element;
-        
-        rowElement.classList.remove('expanded');
-        
-        // Remove next project preview
-        const nextProjectIndex = (expandedProjectIndex + 1) % allProjects.length;
-        const nextProject = allProjects[nextProjectIndex];
-        nextProject.element.classList.remove('next-project-preview');
-        
-        // Unlock scrolling
-        scrollContainer.style.overflow = 'auto';
-        
-        // Reset images
-        resetProjectImages(rowElement);
-        
-        // Reset state
-        expandedProjectIndex = null;
-        currentImageIndex = 0;
-        activeGalleryImage = 1;
-        
-        // Reset URL
-        window.history.pushState({}, '', '/projects');
-      }
-      
-      function transitionToProject(toProjectIndex) {
-        if (expandedProjectIndex === toProjectIndex) return;
-        
-        // Smooth transition: close current and open new simultaneously
-        if (expandedProjectIndex !== null) {
-          const currentProject = allProjects[expandedProjectIndex];
-          currentProject.element.classList.remove('expanded');
-          resetProjectImages(currentProject.element);
-          
-          // Remove previous next project preview
-          const prevNextProjectIndex = (expandedProjectIndex + 1) % allProjects.length;
-          const prevNextProject = allProjects[prevNextProjectIndex];
-          prevNextProject.element.classList.remove('next-project-preview');
-        }
-        
-        // Immediately expand new project
-        expandProject(toProjectIndex);
-      }
-      
-      function animateScrollTo(targetScrollTop) {
-        const startScrollTop = scrollContainer.scrollTop;
-        const scrollDistance = targetScrollTop - startScrollTop;
-        const duration = 400;
-        let startTime = null;
-        
-        function animateScroll(currentTime) {
-          if (startTime === null) startTime = currentTime;
-          const timeElapsed = currentTime - startTime;
-          const progress = Math.min(timeElapsed / duration, 1);
-          
-          // Easing function (ease-out)
-          const ease = 1 - Math.pow(1 - progress, 3);
-          
-          const currentScrollPosition = startScrollTop + (scrollDistance * ease);
-          scrollContainer.scrollTop = currentScrollPosition;
-          
-          if (progress < 1) {
-            requestAnimationFrame(animateScroll);
-          }
-        }
-        
-        requestAnimationFrame(animateScroll);
-      }
-      
-      function resetProjectImages(rowElement) {
-        const galleryImage1 = rowElement.querySelector('.gallery-image-1');
-        const galleryImage2 = rowElement.querySelector('.gallery-image-2');
-        if (galleryImage1) galleryImage1.src = '';
-        if (galleryImage2) galleryImage2.src = '';
-        if (galleryImage1) galleryImage1.classList.remove('opacity-0');
-        if (galleryImage2) galleryImage2.classList.add('opacity-0');
-      }
-      
-      function loadGalleryImage(rowElement) {
-        if (expandedProjectIndex === null) return;
-        
-        const projectData = allProjects[expandedProjectIndex].data;
-        if (!projectData.images || projectData.images.length === 0) return;
-        
-        const nextImage = activeGalleryImage === 1 ? rowElement.querySelector('.gallery-image-2') : rowElement.querySelector('.gallery-image-1');
-        const currentImage = activeGalleryImage === 1 ? rowElement.querySelector('.gallery-image-1') : rowElement.querySelector('.gallery-image-2');
-        const imageCounter = rowElement.querySelector('.image-counter');
-        
-        // Clear handlers
-        nextImage.onload = null;
-        nextImage.onerror = null;
-        
-        // Try local image first
-        const localImagePath = `/data/projects/${projectData.slug}/image${currentImageIndex + 1}.jpg`;
-        const externalImage = projectData.images[currentImageIndex];
-        
-        let imageLoaded = false;
-        
-        nextImage.onload = function() {
-          if (!imageLoaded) {
-            imageLoaded = true;
-            // Crossfade
-            nextImage.classList.remove('opacity-0');
-            currentImage.classList.add('opacity-0');
-            // Switch active image
-            activeGalleryImage = activeGalleryImage === 1 ? 2 : 1;
-            // Update counter
-           imageCounter.textContent = `${currentImageIndex + 1}/${projectData.images.length}`; 
-          }
-        };
-        
-        nextImage.onerror = function() {
-          if (!imageLoaded && externalImage && externalImage.startsWith('http')) {
-            nextImage.src = externalImage;
-          }
-        };
-        
-        // Set new image
-        nextImage.src = localImagePath;
-      }
-      
-      function navigateGallery(direction) {
-        if (expandedProjectIndex === null) return;
-        
-        const projectData = allProjects[expandedProjectIndex].data;
-        if (!projectData.images || projectData.images.length === 0) return;
-        
-        if (direction === 'next') {
-          currentImageIndex = (currentImageIndex + 1) % projectData.images.length;
-        } else {
-          currentImageIndex = (currentImageIndex - 1 + projectData.images.length) % projectData.images.length;
-        }
-        
-        const rowElement = allProjects[expandedProjectIndex].element;
-        loadGalleryImage(rowElement);
-        preloadProjectImages(allProjects[expandedProjectIndex].data);
-      }
-      
-      function goToNextProject() {
-        if (expandedProjectIndex === null) return;
-        
-        const nextIndex = (expandedProjectIndex + 1) % allProjects.length;
-        transitionToProject(nextIndex);
-      }
-      
-      
-      // Event listeners
-      projectRows.forEach((row, index) => {
-        row.addEventListener('mouseenter', function() {
-          // Don't show hover if expanded
-          if (expandedProjectIndex !== null) return;
-          
-          // Dim other rows
-          projectRows.forEach(otherRow => {
-            if (otherRow !== row) {
-              otherRow.classList.add('dimmed');
-            }
-          });
-          
-          // Show hover image
-          const projectData = JSON.parse(this.dataset.project);
-          showHoverImage(projectData, this);
-        });
-        
-        row.addEventListener('mouseleave', function() {
-          if (expandedProjectIndex === null) {
-            resetHoverStates();
-          }
-        });
-        
-        row.addEventListener('click', function() {
-          const projectData = JSON.parse(this.dataset.project);
-          // Only open if project has images
-          if (projectData.images && projectData.images.length > 0) {
-            setExpandedProject(index);
-          }
-        });
-        
-        // Close button
-        const closeButton = row.querySelector('.project-close');
-        if (closeButton) {
-          closeButton.addEventListener('click', (e) => {
-            e.stopPropagation();
-            closeExpandedProject();
-          });
-        }
-        
-        // Navigation zones
-        const prevZone = row.querySelector('.prev-zone');
-        const nextZone = row.querySelector('.next-zone');
-        
-        if (prevZone) {
-          prevZone.addEventListener('click', (e) => {
-            e.stopPropagation();
-            navigateGallery('prev');
-          });
-        }
-        
-        if (nextZone) {
-          nextZone.addEventListener('click', (e) => {
-            e.stopPropagation();
-            navigateGallery('next');
-          });
-        }
-        
-        // Next project button
-        const nextProjectButton = row.querySelector('.next-project');
-        if (nextProjectButton) {
-          nextProjectButton.addEventListener('click', (e) => {
-            e.stopPropagation();
-            goToNextProject();
-          });
-        }
-      });
-      
-      // Keyboard navigation
-      document.addEventListener('keydown', (e) => {
-        if (expandedProjectIndex === null) return;
-        
-        if (e.key === 'ArrowLeft') {
-          navigateGallery('prev');
-        } else if (e.key === 'ArrowRight') {
-          navigateGallery('next');
-        } else if (e.key === 'Escape') {
-          closeExpandedProject();
-        }
-      });
-      
-      // Handle browser back button
-      window.addEventListener('popstate', (e) => {
-        if (e.state && e.state.slug) {
-          // Find project by slug and open it
-          const projectIndex = allProjects.findIndex(p => p.data.slug === e.state.slug);
-          if (projectIndex !== -1) {
-            setExpandedProject(projectIndex);
-          }
-        } else {
-          closeExpandedProject();
-        }
-      });
-      
-      // Check if we should open a project on load
-      const pathMatch = window.location.pathname.match(/^\/projects\/([^/]+)$/);
-      if (pathMatch) {
-        const slug = pathMatch[1];
-        const projectIndex = allProjects.findIndex(p => p.data.slug === slug);
-        if (projectIndex !== -1) {
-          setTimeout(() => {
-            setExpandedProject(projectIndex);
-          }, 100);
-        }
-      }
-      
-      // Event listeners
-      scrollContainer.addEventListener('scroll', resetHoverStates);
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const projectRows = document.querySelectorAll('.project-row');
+    const hoverImageContainer = document.getElementById('hover-image-container');
+    const hoverImage = document.getElementById('hover-image');
+    const scrollContainer = document.querySelector('.overflow-y-auto');
+    
+    let currentHoverTimeout = null;
+    let expandedProjectIndex = null;
+    let currentImageIndex = 0;
+    let allProjects = [];
+    let activeGalleryImage = 1;
+    
+    // ─── Touch state ─────────────────────────────────────────────────────────
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchStartTime = 0;
+    let isSwiping = false;
+    let swipeAxisLocked = null;
+    let activeTouchRow = null;
+    
+    // ─── Init projects array ──────────────────────────────────────────────────
+    projectRows.forEach((row, index) => {
+      const projectData = JSON.parse(row.dataset.project);
+      allProjects.push({ data: projectData, element: row, index });
     });
-  </script>
+    
+    // ─── Preload ──────────────────────────────────────────────────────────────
+    function preloadProjectImages(projectData) {
+      if (!projectData.images?.length) return;
+      projectData.images.forEach((url) => {
+        if (!url) return;
+        const img = new Image();
+        img.src = url;
+      });
+    }
+
+    // ─── Gallery image loader ─────────────────────────────────────────────────
+    function loadGalleryImage(rowElement) {
+      if (expandedProjectIndex === null) return;
+
+      const projectData = allProjects[expandedProjectIndex].data;
+      if (!projectData.images?.length) return;
+
+      const imageUrl = projectData.images[currentImageIndex];
+      if (!imageUrl) return;
+
+      const nextImage = activeGalleryImage === 1
+        ? rowElement.querySelector('.gallery-image-2')
+        : rowElement.querySelector('.gallery-image-1');
+      const currentImage = activeGalleryImage === 1
+        ? rowElement.querySelector('.gallery-image-1')
+        : rowElement.querySelector('.gallery-image-2');
+      const imageCounter = rowElement.querySelector('.image-counter');
+
+      nextImage.onload = null;
+      nextImage.onerror = null;
+      nextImage.src = '';
+
+      nextImage.onload = function () {
+        nextImage.classList.remove('opacity-0');
+        currentImage.classList.add('opacity-0');
+        activeGalleryImage = activeGalleryImage === 1 ? 2 : 1;
+        imageCounter.textContent = `${currentImageIndex + 1}/${projectData.images.length}`;
+      };
+
+      nextImage.onerror = function () {
+        console.warn('Failed to load image:', imageUrl);
+      };
+
+      nextImage.src = imageUrl;
+    }
+
+    // ─── Hover image ──────────────────────────────────────────────────────────
+    function hideHoverImage() {
+      hoverImageContainer.classList.remove('show');
+      if (currentHoverTimeout) clearTimeout(currentHoverTimeout);
+      currentHoverTimeout = setTimeout(() => {
+        hoverImageContainer.classList.add('hidden');
+        hoverImage.src = '';
+        hoverImage.onload = null;
+        hoverImage.onerror = null;
+      }, 150);
+    }
+
+    function showHoverImage(projectData, rowElement) {
+      if (!projectData.images?.length) return;
+
+      if (currentHoverTimeout) {
+        clearTimeout(currentHoverTimeout);
+        currentHoverTimeout = null;
+      }
+
+      const imageUrl = projectData.images[0];
+      if (!imageUrl) return;
+
+      hoverImageContainer.classList.remove('show');
+      hoverImageContainer.classList.add('hidden');
+      hoverImageContainer.style.visibility = '';
+
+      const img = new Image();
+      let resolved = false;
+
+      img.onload = () => {
+        if (resolved) return;
+        resolved = true;
+
+        const maxHeight = Math.floor(window.innerHeight * 0.6);
+        hoverImage.style.maxHeight = `${maxHeight}px`;
+        hoverImage.style.width = 'auto';
+        hoverImage.src = img.src;
+
+        hoverImageContainer.style.top = '-9999px';
+        hoverImageContainer.style.visibility = 'hidden';
+        hoverImageContainer.classList.remove('hidden');
+
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            const rowRect = rowElement.getBoundingClientRect();
+            const containerHeight = hoverImageContainer.getBoundingClientRect().height;
+            const spaceAbove = rowRect.top;
+
+            hoverImageContainer.style.top = spaceAbove >= containerHeight
+              ? `${rowRect.top - containerHeight}px`
+              : `${rowRect.bottom}px`;
+
+            hoverImageContainer.style.visibility = '';
+            hoverImageContainer.classList.add('show');
+          });
+        });
+      };
+
+      img.onerror = () => {};
+      img.src = imageUrl;
+    }
+
+    function resetHoverStates() {
+      projectRows.forEach(row => row.classList.remove('dimmed'));
+      hideHoverImage();
+    }
+
+    // ─── Touch / swipe ────────────────────────────────────────────────────────
+    function attachSwipeListeners(rowElement) {
+      if (rowElement._swipeBound) return;
+      rowElement._swipeBound = true;
+      rowElement.addEventListener('touchstart', onTouchStart, { passive: true });
+      rowElement.addEventListener('touchmove', onTouchMove, { passive: false });
+      rowElement.addEventListener('touchend', onTouchEnd, { passive: true });
+      rowElement.addEventListener('touchcancel', onTouchCancel, { passive: true });
+    }
+
+    function detachSwipeListeners(rowElement) {
+      rowElement.removeEventListener('touchstart', onTouchStart);
+      rowElement.removeEventListener('touchmove', onTouchMove);
+      rowElement.removeEventListener('touchend', onTouchEnd);
+      rowElement.removeEventListener('touchcancel', onTouchCancel);
+      rowElement._swipeBound = false;
+    }
+
+    function onTouchStart(e) {
+      if (e.touches.length !== 1) return;
+      if (expandedProjectIndex === null) return;
+      const row = allProjects[expandedProjectIndex].element;
+      if (!row.contains(e.target)) return;
+
+      const touch = e.touches[0];
+      touchStartX = touch.clientX;
+      touchStartY = touch.clientY;
+      touchStartTime = Date.now();
+      isSwiping = true;
+      swipeAxisLocked = null;
+      activeTouchRow = row;
+    }
+
+    function onTouchMove(e) {
+      if (!isSwiping || !activeTouchRow) return;
+      if (e.touches.length !== 1) { cancelSwipe(); return; }
+
+      const touch = e.touches[0];
+      const deltaX = touch.clientX - touchStartX;
+      const deltaY = touch.clientY - touchStartY;
+
+      if (!swipeAxisLocked) {
+        if (Math.abs(deltaX) > 6 || Math.abs(deltaY) > 6) {
+          swipeAxisLocked = Math.abs(deltaX) >= Math.abs(deltaY) ? 'horizontal' : 'vertical';
+        }
+      }
+
+      if (swipeAxisLocked === 'horizontal') {
+        e.preventDefault();
+      }
+    }
+
+    function onTouchEnd(e) {
+      if (!isSwiping || !activeTouchRow) return;
+
+      const touch = e.changedTouches[0];
+      const deltaX = touch.clientX - touchStartX;
+      const deltaY = touch.clientY - touchStartY;
+      const elapsed = Date.now() - touchStartTime;
+      const absDeltaX = Math.abs(deltaX);
+      const absDeltaY = Math.abs(deltaY);
+      const velocityX = absDeltaX / elapsed;
+
+      const isHorizontalSwipe =
+        swipeAxisLocked === 'horizontal' ||
+        (swipeAxisLocked === null && absDeltaX > absDeltaY * 1.5);
+
+      const triggered = isHorizontalSwipe && (absDeltaX > 50 || velocityX > 0.3);
+
+      if (triggered) {
+        deltaX < 0 ? navigateGallery('next') : navigateGallery('prev');
+      }
+
+      cancelSwipe();
+    }
+
+    function onTouchCancel() { cancelSwipe(); }
+
+    function cancelSwipe() {
+      isSwiping = false;
+      swipeAxisLocked = null;
+      activeTouchRow = null;
+    }
+
+    // ─── Project expand / close / transition ──────────────────────────────────
+    function setExpandedProject(projectIndex) {
+      if (expandedProjectIndex === projectIndex) return;
+      if (expandedProjectIndex !== null) closeExpandedProject();
+      expandProject(projectIndex);
+    }
+
+    function expandProject(projectIndex) {
+      const project = allProjects[projectIndex];
+      const projectData = project.data;
+      const rowElement = project.element;
+
+      expandedProjectIndex = projectIndex;
+      currentImageIndex = 0;
+      activeGalleryImage = 1;
+
+      resetHoverStates();
+      scrollContainer.style.overflow = 'hidden';
+      rowElement.classList.add('expanded');
+
+      const nextProjectIndex = (projectIndex + 1) % allProjects.length;
+      allProjects[nextProjectIndex].element.classList.add('next-project-preview');
+
+      const containerRect = scrollContainer.getBoundingClientRect();
+      const rowRect = rowElement.getBoundingClientRect();
+      const rowTopInContainer = rowRect.top - containerRect.top + scrollContainer.scrollTop;
+      animateScrollTo(Math.max(0, rowTopInContainer));
+
+      loadGalleryImage(rowElement);
+      preloadProjectImages(projectData);
+      attachSwipeListeners(rowElement);
+
+      window.history.pushState({ slug: projectData.slug }, '', `/projects/${projectData.slug}`);
+    }
+
+    function closeExpandedProject() {
+      if (expandedProjectIndex === null) return;
+
+      const project = allProjects[expandedProjectIndex];
+      const rowElement = project.element;
+
+      rowElement.classList.remove('expanded');
+
+      const nextProjectIndex = (expandedProjectIndex + 1) % allProjects.length;
+      allProjects[nextProjectIndex].element.classList.remove('next-project-preview');
+
+      scrollContainer.style.overflow = 'auto';
+      resetProjectImages(rowElement);
+      detachSwipeListeners(rowElement);
+
+      expandedProjectIndex = null;
+      currentImageIndex = 0;
+      activeGalleryImage = 1;
+
+      window.history.pushState({}, '', '/projects');
+    }
+
+    function transitionToProject(toProjectIndex) {
+      if (expandedProjectIndex === toProjectIndex) return;
+
+      if (expandedProjectIndex !== null) {
+        const currentProject = allProjects[expandedProjectIndex];
+        currentProject.element.classList.remove('expanded');
+        resetProjectImages(currentProject.element);
+        detachSwipeListeners(currentProject.element);
+
+        const prevNextIndex = (expandedProjectIndex + 1) % allProjects.length;
+        allProjects[prevNextIndex].element.classList.remove('next-project-preview');
+
+        activeGalleryImage = 1;
+        scrollContainer.style.overflow = 'auto';
+      }
+
+      expandProject(toProjectIndex);
+    }
+
+    function resetProjectImages(rowElement) {
+      const g1 = rowElement.querySelector('.gallery-image-1');
+      const g2 = rowElement.querySelector('.gallery-image-2');
+      if (g1) { g1.src = ''; g1.classList.remove('opacity-0'); }
+      if (g2) { g2.src = ''; g2.classList.add('opacity-0'); }
+    }
+
+    // ─── Gallery navigation ───────────────────────────────────────────────────
+    function navigateGallery(direction) {
+      if (expandedProjectIndex === null) return;
+      const projectData = allProjects[expandedProjectIndex].data;
+      if (!projectData.images?.length) return;
+
+      currentImageIndex = direction === 'next'
+        ? (currentImageIndex + 1) % projectData.images.length
+        : (currentImageIndex - 1 + projectData.images.length) % projectData.images.length;
+
+      loadGalleryImage(allProjects[expandedProjectIndex].element);
+    }
+
+    function goToNextProject() {
+      if (expandedProjectIndex === null) return;
+      transitionToProject((expandedProjectIndex + 1) % allProjects.length);
+    }
+
+    // ─── Scroll animation ─────────────────────────────────────────────────────
+    function animateScrollTo(targetScrollTop) {
+      const startScrollTop = scrollContainer.scrollTop;
+      const scrollDistance = targetScrollTop - startScrollTop;
+      const duration = 400;
+      let startTime = null;
+
+      function animateScroll(currentTime) {
+        if (startTime === null) startTime = currentTime;
+        const progress = Math.min((currentTime - startTime) / duration, 1);
+        const ease = 1 - Math.pow(1 - progress, 3);
+        scrollContainer.scrollTop = startScrollTop + scrollDistance * ease;
+        if (progress < 1) requestAnimationFrame(animateScroll);
+      }
+
+      requestAnimationFrame(animateScroll);
+    }
+
+    // ─── Row event listeners ──────────────────────────────────────────────────
+    projectRows.forEach((row, index) => {
+      row.addEventListener('mouseenter', function () {
+        if (expandedProjectIndex !== null) return;
+        projectRows.forEach(other => { if (other !== row) other.classList.add('dimmed'); });
+        showHoverImage(allProjects[index].data, this);
+      });
+
+      row.addEventListener('mouseleave', function () {
+        if (expandedProjectIndex === null) resetHoverStates();
+      });
+
+      row.addEventListener('click', function () {
+        if (allProjects[index].data.images?.length > 0) setExpandedProject(index);
+      });
+
+      const closeButton = row.querySelector('.project-close');
+      if (closeButton) {
+        closeButton.addEventListener('click', (e) => {
+          e.stopPropagation();
+          closeExpandedProject();
+        });
+      }
+
+      const prevZone = row.querySelector('.prev-zone');
+      const nextZone = row.querySelector('.next-zone');
+
+      if (prevZone) {
+        prevZone.addEventListener('click', (e) => {
+          e.stopPropagation();
+          navigateGallery('prev');
+        });
+      }
+
+      if (nextZone) {
+        nextZone.addEventListener('click', (e) => {
+          e.stopPropagation();
+          navigateGallery('next');
+        });
+      }
+
+      const nextProjectButton = row.querySelector('.next-project');
+      if (nextProjectButton) {
+        nextProjectButton.addEventListener('click', (e) => {
+          e.stopPropagation();
+          goToNextProject();
+        });
+      }
+    });
+
+    // ─── Keyboard ─────────────────────────────────────────────────────────────
+    document.addEventListener('keydown', (e) => {
+      if (expandedProjectIndex === null) return;
+      if (e.key === 'ArrowLeft') navigateGallery('prev');
+      else if (e.key === 'ArrowRight') navigateGallery('next');
+      else if (e.key === 'Escape') closeExpandedProject();
+    });
+
+    // ─── Browser back ─────────────────────────────────────────────────────────
+    window.addEventListener('popstate', (e) => {
+      if (e.state?.slug) {
+        const idx = allProjects.findIndex(p => p.data.slug === e.state.slug);
+        if (idx !== -1) setExpandedProject(idx);
+      } else {
+        closeExpandedProject();
+      }
+    });
+
+    // ─── Scroll (debounced) ───────────────────────────────────────────────────
+    let scrollDebounce = null;
+    scrollContainer.addEventListener('scroll', () => {
+      if (scrollDebounce) clearTimeout(scrollDebounce);
+      scrollDebounce = setTimeout(resetHoverStates, 50);
+    });
+
+    // ─── Open from URL on load ────────────────────────────────────────────────
+    const pathMatch = window.location.pathname.match(/^\/projects\/([^/]+)$/);
+    if (pathMatch) {
+      const idx = allProjects.findIndex(p => p.data.slug === pathMatch[1]);
+      if (idx !== -1) {
+        requestAnimationFrame(() => requestAnimationFrame(() => setExpandedProject(idx)));
+      }
+    }
+  });
+</script>
